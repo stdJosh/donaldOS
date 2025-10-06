@@ -14,16 +14,26 @@ namespace DonaldOS
 
         public void userLogin()
         {
-            if (!File.Exists(configFileName))
+            if (!File.Exists(configFileName) || new FileInfo(configFileName).Length == 0)
             {
-                File.Create(configFileName);
-            }
+                Console.WriteLine("There are no users specified. You can now add a root user. \nChoose a username: ");
+                string newUserName = Console.ReadLine();
+                Console.WriteLine("Choose a password: ");
+                string newPassword = Console.ReadLine();
 
-            StreamReader configFile = File.OpenText(configFileName);
+                try
+                {
+                    using (StreamWriter writer = new StreamWriter(configFileName))
+                    {
+                        writer.WriteLine(newUserName + " " + newPassword);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
 
-            if (new FileInfo(configFileName).Length == 0)
-            {
-                Console.WriteLine("File empty");
+                Console.WriteLine("Successfully created root user. You are now logged in as " + newUserName);
             }
         }
     }
