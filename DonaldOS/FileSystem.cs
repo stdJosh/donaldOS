@@ -35,11 +35,10 @@ namespace DonaldOS
             return file_stream;
         }
 
-        public void listDir(string path, int recursionLevel = 0, bool recursive = false, FileSystemElementTypes elementsToShow = FileSystemElementTypes.All, string filterString = null)
+        public void listDir(string path, int recursionLevel = 0, bool recursive = false, FileSystemElementTypes elementsToShow = FileSystemElementTypes.All, string filterString = "")
         { // TODO: rekursive Aufrufe geben nicht gleich alle Elemente aus, sondern befüllen nur nach und nach ein Array
           // von einer eigenen FileSystemElement-Klasse, in dem die auszugebenden Elemente drinstehen
-          // Vorteil: bessere Ausgabe bei Angabe eines FilterStrings (würde Zurückgehen im Array und Löschen ermöglichen)
-            Console.WriteLine("DEBUG");
+          // Vorteil: bessere Ausgabe bei Angabe eines FilterStrings (würde Zurückgehen im Array und Löschen ermöglichen
             if (!Directory.Exists(path))
             {
                 throw new Exception("Path does not exist");
@@ -55,7 +54,7 @@ namespace DonaldOS
                 string[] fileNames = Directory.GetFiles(path);
                 foreach (string fileName in fileNames)
                 {
-                    if (fileName.Contains(filterString))
+                    if (filterString == "" || fileName.Contains(filterString))
                     {
                         Console.WriteLine(path + fileName);
                     }
@@ -66,12 +65,27 @@ namespace DonaldOS
                 string[] dirNames = Directory.GetDirectories(path);
                 foreach (string dirName in dirNames)
                 {
-                    if (dirName.Contains(filterString))
+                    if (filterString == "" || dirName.Contains(filterString))
                     {
                         Console.WriteLine(path + dirName + '\\');
                     }
-                    listDir(path + dirName, recursionLevel + 1, recursive, elementsToShow, filterString);
+                    if (recursive)
+                    {
+                        listDir(path + dirName, recursionLevel + 1, recursive, elementsToShow, filterString);
+                    }
                 }
+            }
+        }
+
+        public void remove(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                //
+            }
+            else if (File.Exists(path))
+            {
+                File.Delete(path);
             }
         }
     }

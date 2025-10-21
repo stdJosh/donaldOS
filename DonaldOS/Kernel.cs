@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Cosmos.Core.IOGroup;
+using Cosmos.System.ScanMaps;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +11,7 @@ namespace DonaldOS
 {
     public class Kernel : Sys.Kernel
     {
-        private FileSystem fs;
+        private FileSystem fs = new FileSystem();
         Sys.FileSystem.CosmosVFS vfs = new Cosmos.System.FileSystem.CosmosVFS();
 
         private string currentPath = @"0:\";
@@ -19,12 +21,12 @@ namespace DonaldOS
         {
             Sys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
             Console.WriteLine("Cosmos booted successfully. Type a line of text to get it echoed back.");
+            Sys.KeyboardManager.SetKeyLayout(new DE_Standard());
         }
 
         protected override void Run()
         {
-         
-            Console.Write("Input: ");
+            //Console.Write("Input: ");
             var input = Console.ReadLine();
             
             string[] args = input.Split(' ');
@@ -40,7 +42,7 @@ namespace DonaldOS
                         string path = currentPath;
                         bool recursive = false;
                         FileSystemElementTypes elementTypes = FileSystemElementTypes.All;
-                        string filterString = null;
+                        string filterString = "";
                         for (int i = 1; i < args.Length; i++)
                         {
                             switch (args[i])
@@ -81,8 +83,7 @@ namespace DonaldOS
                         }
                         try
                         {
-                            Console.WriteLine("DEBUGOUTSIDE");
-                            fs.listDir(currentPath, 0, recursive, elementTypes, filterString);
+                            fs.listDir(path, 0, recursive, elementTypes, filterString);
                         }
                         catch (Exception e)
                         {
