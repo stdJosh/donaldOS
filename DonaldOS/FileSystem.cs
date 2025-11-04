@@ -38,7 +38,7 @@ namespace DonaldOS
         public void listDir(string path, int recursionLevel = 0, bool recursive = false, FileSystemElementTypes elementsToShow = FileSystemElementTypes.All, string filterString = "")
         { // TODO: rekursive Aufrufe geben nicht gleich alle Elemente aus, sondern befüllen nur nach und nach ein Array
           // von einer eigenen FileSystemElement-Klasse, in dem die auszugebenden Elemente drinstehen
-          // Vorteil: bessere Ausgabe bei Angabe eines FilterStrings (würde Zurückgehen im Array und Löschen ermöglichen
+          // Vorteil: bessere Ausgabe bei Angabe eines FilterStrings (würde Zurückgehen im Array und Löschen ermöglichen)
             if (!Directory.Exists(path))
             {
                 throw new Exception("Path does not exist");
@@ -81,7 +81,14 @@ namespace DonaldOS
         {
             if (Directory.Exists(path))
             {
-                //
+                try
+                {
+                    Directory.Delete(path, true);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
             else if (File.Exists(path))
             {

@@ -15,8 +15,6 @@ namespace DonaldOS
         Sys.FileSystem.CosmosVFS vfs = new Cosmos.System.FileSystem.CosmosVFS();
 
         private string currentPath = @"0:\";
-
-        private SortedDictionary<String, Func<String[], bool>> CommandDict = new SortedDictionary<String, Func<String[], bool>>();
         protected override void BeforeRun()
         {
             Sys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
@@ -93,7 +91,7 @@ namespace DonaldOS
                     }
                 case "rm":
                     {
-                        File.Delete(@"0:\" +  args[1]);
+                        fs.remove(@"0:\" +  args[1]);
                         break;
                     }
                 default:
