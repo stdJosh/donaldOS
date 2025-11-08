@@ -1,32 +1,41 @@
 ﻿using Cosmos.Core.IOGroup;
 using Cosmos.System.ScanMaps;
-using System;
+using Sys = System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Sys = Cosmos.System;
+using CosmosSys = Cosmos.System;
 
 namespace DonaldOS
 {
-    public class Kernel : Sys.Kernel
+    public class Kernel : CosmosSys.Kernel
     {
         private FileSystem fs = new FileSystem();
-        Sys.FileSystem.CosmosVFS vfs = new Cosmos.System.FileSystem.CosmosVFS();
+        CosmosSys.FileSystem.CosmosVFS vfs = new CosmosSys.FileSystem.CosmosVFS();
 
         private string currentPath = @"0:\";
         protected override void BeforeRun()
         {
-            Sys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
+            CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
             Console.WriteLine("Cosmos booted successfully. Type a line of text to get it echoed back.");
-            Sys.KeyboardManager.SetKeyLayout(new DE_Standard());
+            CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
+
+            CosmosSys.MouseManager.ScreenWidth = 200;
+            CosmosSys.MouseManager.ScreenHeight = 2000;
+            CosmosSys.MouseManager.Y = 1000;
         }
 
         protected override void Run()
         {
-            //Console.Write("Input: ");
-            var input = Console.ReadLine();
-            
+            if (!Sys.Console.KeyAvailable)
+            {
+                Console.checkScrolling();
+                return;
+            }
+            string input = Console.ReadLine();
+
+
             string[] args = input.Split(' ');
             switch (args[0])
             {
@@ -83,7 +92,7 @@ namespace DonaldOS
                         {
                             fs.listDir(path, 0, recursive, elementTypes, filterString);
                         }
-                        catch (Exception e)
+                        catch (Sys.Exception e)
                         {
                             Console.WriteLine("ls: " + e.ToString());
                         }
@@ -92,6 +101,11 @@ namespace DonaldOS
                 case "rm":
                     {
                         fs.remove(@"0:\" +  args[1]);
+                        break;
+                    }
+                case "test":
+                    {
+                        Console.reprint();
                         break;
                     }
                 default:
