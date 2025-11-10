@@ -11,6 +11,9 @@ namespace DonaldOS
     static internal class Console
     {
     private static List<string> consoleLines = new List<string>();
+    private static List<string> previousCommands = new List<string>();
+    private static int currentCommandIndex = -1;
+    private static char bufferedChar = '\0';
 
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
@@ -56,9 +59,23 @@ namespace DonaldOS
         public static string ReadLine()
         {
             string input = Sys.Console.ReadLine();
+            if (bufferedChar != '\0')
+            {
+                input = input.Insert(0, bufferedChar.ToString());
+                bufferedChar = '\0';
+            }
+
             consoleLines[0] += input;
             consoleLines.Insert(0, "");
+            previousCommands.Insert(0, input);
             return input;
+        }
+
+        public static Sys.ConsoleKeyInfo PeekKey()
+        {
+            var key = Sys.Console.ReadKey();
+            bufferedChar = key.KeyChar;
+            return key;
         }
 
 
@@ -68,8 +85,8 @@ namespace DonaldOS
             {
                 currentScrollOffset += ((int)CosmosSys.MouseManager.Y - 1000) / -100;
                 CosmosSys.MouseManager.Y = 1000;
-                // Sys.Console.WriteLine(currentScrollOffset);
                 reprint();
+                currentCommandIndex = -1;
             }
         }
 
@@ -85,6 +102,52 @@ namespace DonaldOS
                 }
                 Sys.Console.WriteLine(consoleLines[i]);
             }
+        }
+
+        public static void previousCommand()
+        {
+            if (currentCommandIndex >= previousCommands.Count)
+            {
+                return;
+            }
+            currentCommandIndex++;
+            reprint();
+            Sys.Console.Write(previousCommands[currentCommandIndex]);
+        }
+
+        public static void nextCommand()
+        {
+            if (currentCommandIndex == -1)
+            {
+                return;
+            }
+
+            if (currentCommandIndex == 0)
+            {
+                currentCommandIndex = -1;
+                reprint();
+                return;
+            }
+
+            currentCommandIndex--;
+            reprint();
+            Sys.Console.Write(previousCommands[currentCommandIndex]);
+        }
+
+        public static string getCurrentCommmand()
+        {
+            if (currentCommandIndex == -1)
+            {
+                return null;
+            }
+
+            int index = currentCommandIndex;
+            currentCommandIndex = -1; // reset to default
+
+            previousCommands.Add(previousCommands[index]);
+            consoleLines[0] += previousCommands[index];
+            consoleLines.Insert(0, "");
+            return previousCommands[index];
         }
     }
 }
