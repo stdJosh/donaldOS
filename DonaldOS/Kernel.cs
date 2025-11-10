@@ -53,7 +53,6 @@ namespace DonaldOS
                 Console.WriteLine("");
                 if (input == null)
                 {
-                    Sys.Console.WriteLine("VERDACHT BESTATIGT");
                     return;
                 }
             }

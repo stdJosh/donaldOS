@@ -93,7 +93,7 @@ namespace DonaldOS
         public static void reprint()
         {
             Sys.Console.Clear();
-            for (int i = currentScrollOffset + 24; i >= 0 && i >= currentScrollOffset; i--)
+            for (int i = currentScrollOffset + 24; i > 0 && i >= currentScrollOffset; i--)
             {
                 if (i >= consoleLines.Count)
                 {
@@ -102,6 +102,8 @@ namespace DonaldOS
                 }
                 Sys.Console.WriteLine(consoleLines[i]);
             }
+
+            Sys.Console.Write(consoleLines[0]);
         }
 
         public static void previousCommand()
