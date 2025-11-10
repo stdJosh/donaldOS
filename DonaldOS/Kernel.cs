@@ -94,6 +94,27 @@ namespace DonaldOS
                         fs.remove(@"0:\" +  args[1]);
                         break;
                     }
+                case "edit":   
+                    {
+                        string path ="";
+
+                        if (args.Length > 1)
+                        {
+                            path = args[1];
+                        }
+                        else
+                        {
+                            path = currentPath;
+                        }
+
+                        Editor editor = new Editor(path);
+
+                        editor.ReadFile();
+
+                        editor.editmode();
+
+                        break;
+                    }
                 default:
                     {
                         Console.WriteLine(input);
