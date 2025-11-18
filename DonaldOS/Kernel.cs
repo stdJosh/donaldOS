@@ -17,16 +17,18 @@ namespace DonaldOS
         protected override void BeforeRun()
         {
             CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
-            Console.WriteLine("Cosmos booted successfully. Type a line of text to get it echoed back.");
             CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
 
             CosmosSys.MouseManager.ScreenWidth = 200;
             CosmosSys.MouseManager.ScreenHeight = 2000;
             CosmosSys.MouseManager.Y = 1000;
+
+            Console.printBootScreen();
         }
 
         protected override void Run()
         {
+            Sys.Threading.Thread.Sleep(5);
             if (!Sys.Console.KeyAvailable)
             {
                 Console.checkScrolling();

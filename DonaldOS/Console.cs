@@ -81,10 +81,21 @@ namespace DonaldOS
 
         public static void checkScrolling()
         {
-            if (Sys.Math.Abs((int)CosmosSys.MouseManager.Y - 1000) >= scrollThreshold)
+            int scrollDiff = (int)CosmosSys.MouseManager.Y - 1000;
+            if (Sys.Math.Abs(scrollDiff) >= scrollThreshold)
             {
-                currentScrollOffset += ((int)CosmosSys.MouseManager.Y - 1000) / -100;
+                int minScrollOffset = Sys.Math.Max(0, consoleLines.Count - 25) * -1;
+                int maxScrollOffset = 0;
+                //if ((scrollDiff > 0 && currentScrollOffset >= maxScrollOffset) || (scrollDiff < 0 && currentScrollOffset <= minScrollOffset))
+                //{
+                //    //Sys.Console.Write(minScrollOffset);
+                //    CosmosSys.MouseManager.Y = 1000;
+                //    return;
+                //}
+
+                currentScrollOffset += scrollDiff / -100;
                 CosmosSys.MouseManager.Y = 1000;
+
                 reprint();
                 currentCommandIndex = -1;
             }
@@ -97,7 +108,7 @@ namespace DonaldOS
             {
                 if (i >= consoleLines.Count)
                 {
-                    Sys.Console.WriteLine("");
+                    //Sys.Console.WriteLine("");
                     continue;
                 }
                 Sys.Console.WriteLine(consoleLines[i]);
@@ -108,7 +119,7 @@ namespace DonaldOS
 
         public static void previousCommand()
         {
-            if (currentCommandIndex >= previousCommands.Count)
+            if (currentCommandIndex >= previousCommands.Count - 1)
             {
                 return;
             }
@@ -150,6 +161,14 @@ namespace DonaldOS
             consoleLines[0] += previousCommands[index];
             consoleLines.Insert(0, "");
             return previousCommands[index];
+        }
+
+        public static void printBootScreen()
+        {
+            Sys.Console.Write(DonaldHimself.ascii);
+            Sys.Threading.Thread.Sleep(500);
+            Sys.Console.Clear();
+            WriteLine(DonaldHimself.name);
         }
     }
 }
