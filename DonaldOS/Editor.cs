@@ -80,7 +80,7 @@ namespace DonaldOS
                 PrintFile();  // Gibt alle logischen Zeilen aus
                 Console.SetCursorPosition(cursorX % width, cursorY + extra); // modulo für physische Zeile
 
-                ConsoleKeyInfo key = Console.ReadKey(true);
+                ConsoleKeyInfo key = Console.ReadKey();
 
                 switch (key.Key)
                 {

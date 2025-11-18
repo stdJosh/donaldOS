@@ -58,27 +58,7 @@ namespace DonaldOS
                     return;
                 }
             }
-                case "edit":   
-                    {
-                        string path ="";
-
-                        if (args.Length > 1)
-                        {
-                            path = args[1];
-                        }
-                        else
-                        {
-                            path = currentPath;
-                        }
-
-                        Editor editor = new Editor(path);
-
-                        editor.ReadFile();
-
-                        editor.editmode();
-
-                        break;
-                    }
+            else
             {
                 input = Console.ReadLine();
             }

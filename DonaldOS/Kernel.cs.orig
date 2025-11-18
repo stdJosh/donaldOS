@@ -1,24 +1,40 @@
-﻿using Sys = System;
+﻿using Cosmos.Core.IOGroup;
+using Cosmos.System.ScanMaps;
+using Sys = System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using CosmosSys = Cosmos.System;
 
 namespace DonaldOS
 {
-    internal static class CommandExecutionHelper
+    public class Kernel : CosmosSys.Kernel
     {
-        private static FileSystem fs = new FileSystem();
+        CosmosSys.FileSystem.CosmosVFS vfs = new CosmosSys.FileSystem.CosmosVFS();
 
-        private static string currentPath = @"0:\";
-        public static void executeCommand(string input)
+        
+        protected override void BeforeRun()
         {
-            string[] args = input.Split(' ');
-            switch (args[0])
+            CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
+            CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
+
+            CosmosSys.MouseManager.ScreenWidth = 200;
+            CosmosSys.MouseManager.ScreenHeight = 2000;
+            CosmosSys.MouseManager.Y = 1000;
+
+            Console.printBootScreen();
+        }
+
+        protected override void Run()
+        {
+            Sys.Threading.Thread.Sleep(5);
+            if (!Sys.Console.KeyAvailable)
             {
+<<<<<<< HEAD
                 case "touch":
                     {
-                        fs.createFile(currentPath, args[1]);
+                        fs.createFile(currentPath, args[1]); 
                         break;
                     }
                 case "ls":
@@ -69,7 +85,7 @@ namespace DonaldOS
                         {
                             fs.listDir(path, 0, recursive, elementTypes, filterString);
                         }
-                        catch (Sys.Exception e)
+                        catch (Exception e)
                         {
                             Console.WriteLine("ls: " + e.ToString());
                         }
@@ -77,17 +93,12 @@ namespace DonaldOS
                     }
                 case "rm":
                     {
-                        fs.remove(@"0:\" + args[1]);
+                        fs.remove(@"0:\" +  args[1]);
                         break;
                     }
-                case "test":
+                case "edit":   
                     {
-                        Console.reprint();
-                        break;
-                    }
-                case "edit":
-                    {
-                        string path = "";
+                        string path ="";
 
                         if (args.Length > 1)
                         {
@@ -111,7 +122,40 @@ namespace DonaldOS
                         Console.WriteLine(input);
                         break;
                     }
+=======
+                Console.checkScrolling();
+                return;
+>>>>>>> feature/consoleUtilities
             }
+
+            var pressedKey = Console.PeekKey();
+
+            string input;
+
+            if (pressedKey.Key == Sys.ConsoleKey.UpArrow)
+            {
+                Console.previousCommand();
+                return;
+            }
+            else if (pressedKey.Key == Sys.ConsoleKey.DownArrow)
+            {
+                Console.nextCommand();
+                return;
+            }
+            else if (pressedKey.Key == Sys.ConsoleKey.Enter)
+            {
+                input = Console.getCurrentCommmand();
+                Console.WriteLine("");
+                if (input == null)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                input = Console.ReadLine();
+            }
+            CommandExecutionHelper.executeCommand(input);
         }
     }
 }
