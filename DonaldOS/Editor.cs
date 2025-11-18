@@ -76,9 +76,12 @@ namespace DonaldOS
             while (true)  
             {
                 //todo: nicht immer alles neu zeichnen
-                Console.Clear();
-                PrintFile();  // Gibt alle logischen Zeilen aus
+                Console.ClearAndReprint(rows);
+                //Console.Clear();
+                //PrintFile();  // Gibt alle logischen Zeilen aus
                 Console.SetCursorPosition(cursorX % width, cursorY + extra); // modulo für physische Zeile
+
+                Console.checkScrolling();
 
                 ConsoleKeyInfo key = Console.ReadKey();
 

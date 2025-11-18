@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sys = System;
 using CosmosSys = Cosmos.System;
-using System;
+using Sys = System;
 
 namespace DonaldOS
 {
@@ -106,6 +105,13 @@ namespace DonaldOS
             }
         }
 
+        // negative n scrolls up, positive n scrolls down
+        public static void scrollNLines(int n)
+        {
+            currentScrollOffset += n;
+            reprint();
+        }
+
         public static void reprint()
         {
             Sys.Console.Clear();
@@ -113,7 +119,7 @@ namespace DonaldOS
             {
                 if (i >= consoleLines.Count)
                 {
-                    //Sys.Console.WriteLine("");
+                    Sys.Console.WriteLine("");
                     continue;
                 }
                 Sys.Console.WriteLine(consoleLines[i]);
@@ -181,10 +187,21 @@ namespace DonaldOS
         
         public static void Clear()
         {
-            System.Console.Clear();
+            Sys.Console.Clear();
         }
 
-        public static ConsoleKeyInfo ReadKey()
+        public static void ClearAndReprint(List<string> lineBuffer)
+        {
+            Sys.Console.Clear();
+            consoleLines.Clear();
+            foreach (string line in lineBuffer)
+            {
+                consoleLines.Insert(0, line);
+            }
+            reprint();
+        }
+
+        public static Sys.ConsoleKeyInfo ReadKey()
         {
             return Sys.Console.ReadKey();
         }

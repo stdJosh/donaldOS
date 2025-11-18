@@ -1,8 +1,9 @@
-﻿using Sys = System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sys = System;
 
 namespace DonaldOS
 {
@@ -102,7 +103,14 @@ namespace DonaldOS
 
                         editor.ReadFile();
 
-                        editor.editmode();
+                        try
+                        {
+                            editor.editmode();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.ToString());
+                        }
 
                         break;
                     }
