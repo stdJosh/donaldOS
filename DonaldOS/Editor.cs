@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 namespace DonaldOS
 {
     // todo:
-    // markieren und copy paste ?
-    // scrollen können (pfeiltasten) 
-    // zurück
-    // wieder vor
-    // schreiben / editiren 
-    // beim nach oben drücken länge beachten
-    // beim del in einer leeren zeile soll sie gelöscht werden bzw wenn wenn an pos 0 soll der "reststring" nach oben geschoben werden
-    // view machen (falls zu viele zeilen)
+    // markieren und copy paste ? --
+    // scrollen können (pfeiltasten)  //
+    // zurück                         //
+    // wieder vor                     //
+    // schreiben / editiren           -/
+    // beim nach oben drücken länge beachten -/
+    // beim del in einer leeren zeile soll sie gelöscht werden bzw wenn wenn an pos 0 soll der "reststring" nach oben geschoben werden -/
+    // view machen (falls zu viele zeilen) //
+    // speichern lol //
 
     //ist scrollbar schon systemweit?
     //vor zurück systemweit? (wahrscheinlich nicht) 
@@ -84,22 +85,40 @@ namespace DonaldOS
                 switch (key.Key)
                 {
                     case ConsoleKey.LeftArrow:
-                        if (cursorX > 0) cursorX--;
-                        break; 
+                        if (cursorX > 0)
+                        {
+                            cursorX--;
+                        }
+                        else if (cursorY >0)
+                        {
+                            cursorY--;
+                            cursorX = rows[cursorY].Length;
+                        }
+
+
+                            break; 
 
                     case ConsoleKey.RightArrow:
                         if (cursorX < rows[cursorY].Length)
+                        {
                             cursorX++;
-                        break;
+                        }
+                        else if (cursorY +1< rows.Count)
+                        {
+                            cursorY++;
+                            cursorX = 0;
+                        }
+                            break;
 
-                    //todo auch hier schauen ob zeile darüber mehrere zeilen ist
                     case ConsoleKey.UpArrow:
                         string line = rows[cursorY];
 
                         // Welche physische Zeile innerhalb dieser logischen Zeile bin ich gerade?
                         int cursorXrow2 = (cursorX + 1) / width;
                         if ((cursorX + 1) % width != 0)
+                        {
                             cursorXrow2++;
+                        }
 
                         if (line.Length > width && cursorXrow2 > 1)
                         {
@@ -118,11 +137,19 @@ namespace DonaldOS
 
                                 // Wieviele Bildschirmzeilen hat die vorherige row?
                                 int prevlinerows = prevLine.Length / width;
-                                if (prevLine.Length % width != 0) prevlinerows++;
+                                if (prevLine.Length % width != 0) { prevlinerows++; }
 
-                                // Neue Cursorposition innerhalb der vorherigen logischen Zeile
-                                // gleiche horizontale Position beibehalten, aber eine Zeile höher landen
-                                cursorX = (prevlinerows - 1) * width + (cursorX % width);
+                                if (prevLine.Length == 0)
+                                {
+                                    cursorX = 0;
+                                }
+                                else
+                                {
+                                    // Neue Cursorposition innerhalb der vorherigen logischen Zeile
+                                    // gleiche horizontale Position beibehalten, aber eine Zeile höher landen
+                                    cursorX = (prevlinerows - 1) * width + (cursorX % width);
+                                }
+                                
 
                                 // Falls die vorherige Zeile kürzer ist, Cursor ans Ende
                                 if (cursorX > prevLine.Length)
@@ -185,8 +212,18 @@ namespace DonaldOS
                             //löscht das zeichen bei string[cursorX - 1] 
                             rows[cursorY] = rows[cursorY].Remove(cursorX - 1, 1);
                             cursorX--;
+                        }else if (cursorY != 0)
+                        {
+                            //hier drinne wenn x = 0 und y != 0
+                            int oldLen = rows[cursorY-1].Length;
+
+                            rows[cursorY - 1] += rows[cursorY];
+                            rows.RemoveAt(cursorY);
+
+                            cursorY--;
+                            cursorX = oldLen;
                         }
-                        break;
+                            break;
 
                     case ConsoleKey.Enter:
                         // Neue Zeile einfügen 
