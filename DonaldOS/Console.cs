@@ -5,11 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Sys = System;
 using CosmosSys = Cosmos.System;
+using System;
 
 namespace DonaldOS
 {
     static internal class Console
     {
+
+    public static int WindowWidth = Sys.Console.WindowWidth;
+    public static int WindowHeight = Sys.Console.WindowHeight;
+
     private static List<string> consoleLines = new List<string>();
     private static List<string> previousCommands = new List<string>();
     private static int currentCommandIndex = -1;
@@ -88,7 +93,7 @@ namespace DonaldOS
                 int maxScrollOffset = 0;
                 //if ((scrollDiff > 0 && currentScrollOffset >= maxScrollOffset) || (scrollDiff < 0 && currentScrollOffset <= minScrollOffset))
                 //{
-                //    //Sys.Console.Write(minScrollOffset);
+                //    Sys.Console.Write("Min: " + minScrollOffset + "; Max: " + maxScrollOffset + "; Current: " + currentScrollOffset + " | ");
                 //    CosmosSys.MouseManager.Y = 1000;
                 //    return;
                 //}
@@ -169,6 +174,24 @@ namespace DonaldOS
             Sys.Threading.Thread.Sleep(500);
             Sys.Console.Clear();
             WriteLine(DonaldHimself.name);
+            Sys.Console.ForegroundColor = Sys.ConsoleColor.Green;
+            WriteLine("If you are an old white man: Welcome to DonaldOS! Type HELP to learn what you can do with this GREAT BEAUTIFUL SYSTEM!\n\n");
+            Sys.Console.ForegroundColor = Sys.ConsoleColor.White;
+        }
+        
+        public static void Clear()
+        {
+            System.Console.Clear();
+        }
+
+        public static ConsoleKeyInfo ReadKey()
+        {
+            return Sys.Console.ReadKey();
+        }
+
+        public static void SetCursorPosition(int x, int y)
+        {
+            Sys.Console.SetCursorPosition(x, y);
         }
     }
 }
