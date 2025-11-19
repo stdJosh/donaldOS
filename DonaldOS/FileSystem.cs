@@ -161,8 +161,8 @@ namespace DonaldOS
                 string[] files = Directory.GetFiles(path);
                 foreach (var f in files)
                 {
-                    try { File.Delete(f); }
-                    catch (Exception) { /* ignore single file errors */ }
+                    try { File.Delete(path + '\\' + f); }
+                    catch (Exception e) { Console.Write(e.ToString()); }
                 }
 
                 // Unterordner rekursiv löschen
@@ -172,7 +172,7 @@ namespace DonaldOS
                     DeleteDirectoryRecursive(d);
                 }
 
-                // Ordner selbst löschen (nicht rekursiv-Flag)
+                // Ordner selbst löschen
                 try { Directory.Delete(path); }
                 catch (Exception) { /* ignorieren */ }
             }
