@@ -13,16 +13,30 @@ namespace DonaldOS
     {
         CosmosSys.FileSystem.CosmosVFS vfs = new CosmosSys.FileSystem.CosmosVFS();
 
-        
+
         protected override void BeforeRun()
         {
+            
             CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
+
+            
+            var um = new UserManager();
+
+            
+            if (!um.ListUsers().Any())
+            {
+                um.CreateUser("admin", "admin", "admin");
+                Console.WriteLine("Default admin user 'admin' erstellt (Passwort: admin).");
+            }
+
+            
             CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
 
             CosmosSys.MouseManager.ScreenWidth = 200;
             CosmosSys.MouseManager.ScreenHeight = 2000;
             CosmosSys.MouseManager.Y = 1000;
 
+            
             Console.printBootScreen();
         }
 

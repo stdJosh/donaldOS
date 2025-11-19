@@ -19,19 +19,6 @@ namespace DonaldOS
         private string lastCopied = null;
         private bool cut = false;
 
-        // Hilfsfunktionen (keine Path.* Nutzung)
-        private string EnsureTrailingSlash(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return @"0:\";
-            if (!path.EndsWith("\\")) return path + "\\";
-            return path;
-        }
-
-        private string CombinePaths(string basePath, string name)
-        {
-            basePath = EnsureTrailingSlash(basePath);
-            return basePath + name;
-        }
 
         private string GetFileNameFromPath(string path)
         {
@@ -44,12 +31,12 @@ namespace DonaldOS
         // createFile: legt eine (leere) Datei an
         public FileStream createFile(string path, string filename)
         {
-            // Pfad-String korrekt machen
+           
             if (string.IsNullOrEmpty(path)) path = @"0:\";
             if (!path.EndsWith("\\"))
                 path = path + "\\";
 
-            // FileStream erzeugen
+           
             FileStream fs = null;
             try
             {
@@ -66,50 +53,54 @@ namespace DonaldOS
 
         // listDir: Verzeichnisse und Dateien listen
         public void listDir(string path, int recursionLevel = 0, bool recursive = false,
-            FileSystemElementTypes elementsToShow = FileSystemElementTypes.All, string filterString = "")
+    FileSystemElementTypes elementsToShow = FileSystemElementTypes.All, string filterString = "")
         {
             try
             {
-                if (string.IsNullOrEmpty(path)) path = @"0:\";
-                // Keine Path.GetFullPath - einfach sicherstellen:
-                if (!path.EndsWith("\\")) path = path + "\\";
+                if (string.IsNullOrEmpty(path))
+                    path = @"0:\";
+
+                
+                path = Path.GetFullPath(path);
+                if (!path.EndsWith("\\")) path += "\\";
 
                 if (!Directory.Exists(path))
                 {
-                    throw new Exception("Path does not exist: " + path);
+                    Console.WriteLine("Path does not exist: " + path);
+                    return;
                 }
 
-                // Dateien
+                
                 if (elementsToShow == FileSystemElementTypes.All || elementsToShow == FileSystemElementTypes.Files)
                 {
-                    string[] fileNames = Directory.GetFiles(path);
-                    foreach (string fileName in fileNames)
+                    string[] files = Directory.GetFiles(path);
+
+                    foreach (string f in files)
                     {
-                        // fileName ist möglicherweise schon komplett; wir geben lesbare Form aus
-                        string display = fileName;
-                        if (!string.IsNullOrEmpty(filterString) && !display.Contains(filterString))
+                        
+                        string full = Path.Combine(path, Path.GetFileName(f));
+
+                        if (!string.IsNullOrEmpty(filterString) && !full.Contains(filterString))
                             continue;
-                        Console.WriteLine(display);
+
+                        Console.WriteLine(full);
                     }
                 }
 
-                // Ordner
+                
                 if (elementsToShow == FileSystemElementTypes.All || elementsToShow == FileSystemElementTypes.Dirs)
                 {
-                    string[] dirNames = Directory.GetDirectories(path);
-                    foreach (string dirName in dirNames)
-                    {
-                        string display = dirName;
-                        if (!string.IsNullOrEmpty(filterString) && !display.Contains(filterString))
-                            continue;
+                    string[] dirs = Directory.GetDirectories(path);
 
-                        Console.WriteLine(display + "\\");
+                    foreach (string d in dirs)
+                    {
+                        
+                        string full = Path.Combine(path, Path.GetFileName(d));
+
+                        Console.WriteLine(full + "\\");
 
                         if (recursive)
-                        {
-                            // rekursiv aufrufen: Pfad bereits komplett
-                            listDir(dirName, recursionLevel + 1, recursive, elementsToShow, filterString);
-                        }
+                            listDir(full, recursionLevel + 1, recursive, elementsToShow, filterString);
                     }
                 }
             }
@@ -119,7 +110,9 @@ namespace DonaldOS
             }
         }
 
-        // Entfernen: Datei oder Ordner (rekursiv) - manuell implementiert
+
+
+        // Entfernen: Datei oder Ordner (rekursiv) 
         public void remove(string path)
         {
             try
@@ -130,10 +123,10 @@ namespace DonaldOS
                     return;
                 }
 
-                // Wenn Pfad kein TrailingSlash und Directory.Exists(path) false, könnte es eine Datei sein
+                
                 if (Directory.Exists(path))
                 {
-                    // Rekursiv löschen: Dateien löschen, dann Unterordner rekursiv, dann Ordner selbst
+                    
                     DeleteDirectoryRecursive(path);
                     Console.WriteLine("Directory removed: " + path);
                 }
@@ -206,18 +199,18 @@ namespace DonaldOS
             }
         }
 
-        // NormalizePath: sehr simpel, keine Path.GetFullPath
+       
         public string NormalizePath(string currentPath, string input)
         {
             if (string.IsNullOrEmpty(input)) return currentPath;
-            // Absoluter Pfad: enthält ":\"
+            
             if (input.Contains(@":\"))
             {
-                // ensure trailing slash if dir
+                
                 return input;
             }
 
-            // Sonderfall ..
+            
             if (input == "..")
             {
                 int lastSlash = currentPath.LastIndexOf('\\');
@@ -225,7 +218,7 @@ namespace DonaldOS
                 return @"0:\";
             }
 
-            // Relativ: zusammenbauen
+            
             string basePath = currentPath;
             if (!basePath.EndsWith("\\")) basePath += "\\";
             return basePath + input;
@@ -237,7 +230,7 @@ namespace DonaldOS
             return Directory.Exists(path);
         }
 
-        // File copy: Byte-für-Byte über FileStreams (robust)
+        // File copy
         public void CopyFile(string source, string dest)
         {
             try
@@ -248,30 +241,14 @@ namespace DonaldOS
                     return;
                 }
 
-                // Zielordner prüfen
-                int last = dest.LastIndexOf('\\');
-                if (last > 0)
+                string destDir = Path.GetDirectoryName(dest);
+                if (!Directory.Exists(destDir))
                 {
-                    string folder = dest.Substring(0, last);
-                    if (!Directory.Exists(folder))
-                    {
-                        Console.WriteLine("copy: destination folder does not exist: " + folder);
-                        return;
-                    }
+                    Console.WriteLine("copy: destination folder not found: " + destDir);
+                    return;
                 }
 
-                // Byte-Kopie
-                using (FileStream inFs = File.Open(source, FileMode.Open, FileAccess.Read))
-                using (FileStream outFs = File.Create(dest))
-                {
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    while ((read = inFs.Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        outFs.Write(buffer, 0, read);
-                    }
-                }
-
+                File.Copy(source, dest, true); 
                 Console.WriteLine("Copied to: " + dest);
             }
             catch (Exception e)
@@ -279,6 +256,7 @@ namespace DonaldOS
                 Console.WriteLine("copy error: " + e.Message);
             }
         }
+
 
         // Copy/Cut buffer
         public void CopyBufferSet(string path, bool isCut)
@@ -333,19 +311,19 @@ namespace DonaldOS
         {
             try
             {
-                // 1. Quelle prüfen
+                
                 if (!File.Exists(source))
                 {
                     Console.WriteLine("move: source not found: " + source);
                     return;
                 }
 
-                // 2. Wenn dest ein Ordner ist → finalen Pfad bauen
+                
                 bool destIsDir = Directory.Exists(dest);
 
                 if (destIsDir)
                 {
-                    // Ordner → Dateiname anhängen
+                    
                     string filename = GetFileNameFromPath(source);
 
                     if (!dest.EndsWith("\\"))
@@ -355,7 +333,7 @@ namespace DonaldOS
                 }
                 else
                 {
-                    // dest ist KEIN Ordner → wir müssen prüfen, ob der Ordner existiert
+                    
                     int lastSlash = dest.LastIndexOf('\\');
                     if (lastSlash < 0)
                     {
@@ -372,10 +350,9 @@ namespace DonaldOS
                     }
                 }
 
-                // 3. Datei kopieren (Byte für Byte)
+                
                 CopyFile(source, dest);
 
-                // 4. Original löschen
                 try { File.Delete(source); }
                 catch { }
 

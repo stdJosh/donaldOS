@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IL2CPU.API.Attribs;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace DonaldOS
     {
         private static FileSystem fs = new FileSystem();
         private static string currentPath = @"0:\";
+        private static UserManager um = new UserManager();
 
         public static void executeCommand(string input)
         {
@@ -32,7 +34,12 @@ namespace DonaldOS
                 {
                     case "touch":
                         {
-                            if (args.Length < 2)
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
+                                if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: touch <filename>");
                                 break;
@@ -104,6 +111,11 @@ namespace DonaldOS
 
                     case "rm":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
                             if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: rm <path>");
@@ -124,6 +136,12 @@ namespace DonaldOS
 
                     case "mkdir":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
+
                             if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: mkdir <name>");
@@ -194,6 +212,11 @@ namespace DonaldOS
 
                     case "copy":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
                             if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: copy <file>");
@@ -211,6 +234,11 @@ namespace DonaldOS
 
                     case "cut":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
                             if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: cut <file>");
@@ -224,12 +252,22 @@ namespace DonaldOS
 
                     case "paste":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
                             fs.PasteIntoDir(currentPath);
                             break;
                         }
 
                     case "move":
                         {
+                            if (!um.HasPermission("write"))
+                            {
+                                Console.WriteLine("Zugriff verweigert.");
+                                return;
+                            }
                             if (args.Length < 3)
                             {
                                 Console.WriteLine("Usage: move <file> <newname or path>");
@@ -241,6 +279,107 @@ namespace DonaldOS
                             fs.MoveFile(src, dest);
                             break;
                         }
+
+                    case "login":
+                        {
+                            if (args.Length < 3)
+                            {
+                                Console.WriteLine("Usage: login <username> <password>");
+                                break;
+                            }
+                            if (um.Login(args[1], args[2]))
+                            {
+                                Console.WriteLine("Logged in as " + args[1]);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Login failed");
+                            }
+                            break;
+                        }
+
+                    case "logout":
+                        {
+                            um.Logout();
+                            Console.WriteLine("Logged out");
+                            break;
+                        }
+
+                    case "adduser":
+                        {
+                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
+                            {
+                                Console.WriteLine("Access denied: Admin required");
+                                break;
+                            }
+                            if (args.Length < 4)
+                            {
+                                Console.WriteLine("Usage: adduser <username> <password> <role>");
+                                break;
+                            }
+                            string name = args[1], pass = args[2], role = args[3];
+                            if (um.CreateUser(name, pass, role))
+                            {
+                                Console.WriteLine("User created: " + name);
+                            }
+                            else
+                            {
+                                Console.WriteLine("User already exists");
+                            }
+                            break;
+                        }
+
+                    case "deluser":
+                        {
+                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
+                            {
+                                Console.WriteLine("Access denied: Admin required");
+                                break;
+                            }
+                            if (args.Length < 2)
+                            {
+                                Console.WriteLine("Usage: deluser <username>");
+                                break;
+                            }
+                            if (um.DeleteUser(args[1]))
+                            {
+                                Console.WriteLine("User deleted: " + args[1]);
+                            }
+                            else
+                            {
+                                Console.WriteLine("User not found: " + args[1]);
+                            }
+                            break;
+                        }
+
+                    case "listusers":
+                        {
+                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
+                            {
+                                Console.WriteLine("Access denied: Admin required");
+                                break;
+                            }
+                            foreach (var u in um.ListUsers())
+                            {
+                                Console.WriteLine($"- {u.Username} (role: {u.Role})");
+                            }
+                            break;
+                        }
+
+                    case "whoami":
+                        {
+                            if (um.CurrentUser == null)
+                            {
+                                Console.WriteLine("No user logged in.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Current user: " + um.CurrentUser.Username + " (role: " + um.CurrentUser.Role + ")");
+                            }
+                            break;
+                        }
+
+
 
                     default:
                         {
