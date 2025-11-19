@@ -86,7 +86,7 @@ namespace DonaldOS
                     foreach (string fileName in fileNames)
                     {
                         // fileName ist möglicherweise schon komplett; wir geben lesbare Form aus
-                        string display = fileName;
+                        string display = path + fileName;
                         if (!string.IsNullOrEmpty(filterString) && !display.Contains(filterString))
                             continue;
                         Console.WriteLine(display);
@@ -99,7 +99,7 @@ namespace DonaldOS
                     string[] dirNames = Directory.GetDirectories(path);
                     foreach (string dirName in dirNames)
                     {
-                        string display = dirName;
+                        string display = path + dirName;
                         if (!string.IsNullOrEmpty(filterString) && !display.Contains(filterString))
                             continue;
 
