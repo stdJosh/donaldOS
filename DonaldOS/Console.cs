@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Sys = System;
 using CosmosSys = Cosmos.System;
-using System;
+using Microsoft.VisualBasic.FileIO;
 
 namespace DonaldOS
 {
@@ -18,7 +18,6 @@ namespace DonaldOS
     private static List<string> consoleLines = new List<string>();
     private static List<string> previousCommands = new List<string>();
     private static int currentCommandIndex = -1;
-    private static char bufferedChar = '\0';
 
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
@@ -64,11 +63,6 @@ namespace DonaldOS
         public static string ReadLine()
         {
             string input = Sys.Console.ReadLine();
-            if (bufferedChar != '\0')
-            {
-                input = input.Insert(0, bufferedChar.ToString());
-                bufferedChar = '\0';
-            }
 
             consoleLines[0] += input;
             consoleLines.Insert(0, "");
@@ -76,27 +70,69 @@ namespace DonaldOS
             return input;
         }
 
-        public static Sys.ConsoleKeyInfo PeekKey()
+        public static void getAndHandleKey()
         {
-            var key = Sys.Console.ReadKey();
-            bufferedChar = key.KeyChar;
-            return key;
+            Sys.ConsoleKeyInfo key = Sys.Console.ReadKey();
+            switch (key.Key)
+            {
+                case Sys.ConsoleKey.Enter:
+                    {
+                        currentCommandIndex = -1;
+                        WriteLine("");
+                        if (consoleLines[1] != null && consoleLines[1] != "")
+                        {
+                            previousCommands.Insert(0, consoleLines[1]);
+                            CommandExecutionHelper.executeCommand(consoleLines[1]);
+                        }
+                        break;
+                    }
+                case Sys.ConsoleKey.Backspace:
+                    {
+                        if (consoleLines[0].Length == 0)
+                        {
+                            return;
+                        }
+                        consoleLines[0] = consoleLines[0].Remove(consoleLines[0].Length - 1);
+                        reprint();
+                        break;
+                    }
+                case Sys.ConsoleKey.UpArrow:
+                    {
+                        previousCommand();
+                        break;
+                    }
+                case Sys.ConsoleKey.DownArrow:
+                    {
+                        nextCommand();
+                        break;
+                    }
+                default:
+                    {
+                        consoleLines[0] += key.KeyChar;
+                        break;
+                    }
+            }
         }
-
 
         public static void checkScrolling()
         {
             int scrollDiff = (int)CosmosSys.MouseManager.Y - 1000;
             if (Sys.Math.Abs(scrollDiff) >= scrollThreshold)
             {
-                int minScrollOffset = Sys.Math.Max(0, consoleLines.Count - 25) * -1;
-                int maxScrollOffset = 0;
-                //if ((scrollDiff > 0 && currentScrollOffset >= maxScrollOffset) || (scrollDiff < 0 && currentScrollOffset <= minScrollOffset))
-                //{
-                //    Sys.Console.Write("Min: " + minScrollOffset + "; Max: " + maxScrollOffset + "; Current: " + currentScrollOffset + " | ");
-                //    CosmosSys.MouseManager.Y = 1000;
-                //    return;
-                //}
+                int maxScrollOffset = Sys.Math.Max(0, consoleLines.Count - 25);
+                int minScrollOffset = 0;
+                if (scrollDiff > 0 && currentScrollOffset <= minScrollOffset) // user scrolls down
+                {
+                    CosmosSys.MouseManager.Y = 1000;
+                    currentScrollOffset = minScrollOffset;
+                    return;
+                }
+                else if (scrollDiff < 0 && currentScrollOffset >= maxScrollOffset) // user scrolls up
+                {
+                    CosmosSys.MouseManager.Y = 1000;
+                    currentScrollOffset = maxScrollOffset;
+                    return;
+                }
 
                 currentScrollOffset += scrollDiff / -100;
                 CosmosSys.MouseManager.Y = 1000;
@@ -109,7 +145,7 @@ namespace DonaldOS
         public static void reprint()
         {
             Sys.Console.Clear();
-            for (int i = currentScrollOffset + 24; i > 0 && i >= currentScrollOffset; i--)
+            for (int i = currentScrollOffset + 24; i > 0 && i > currentScrollOffset; i--)
             {
                 if (i >= consoleLines.Count)
                 {
@@ -129,8 +165,8 @@ namespace DonaldOS
                 return;
             }
             currentCommandIndex++;
+            consoleLines[0] = previousCommands[currentCommandIndex];
             reprint();
-            Sys.Console.Write(previousCommands[currentCommandIndex]);
         }
 
         public static void nextCommand()
@@ -143,13 +179,14 @@ namespace DonaldOS
             if (currentCommandIndex == 0)
             {
                 currentCommandIndex = -1;
+                consoleLines[0] = "";
                 reprint();
                 return;
             }
 
             currentCommandIndex--;
+            consoleLines[0] = previousCommands[currentCommandIndex];
             reprint();
-            Sys.Console.Write(previousCommands[currentCommandIndex]);
         }
 
         public static string getCurrentCommmand()
@@ -174,9 +211,7 @@ namespace DonaldOS
             Sys.Threading.Thread.Sleep(500);
             Sys.Console.Clear();
             WriteLine(DonaldHimself.name);
-            Sys.Console.ForegroundColor = Sys.ConsoleColor.Green;
             WriteLine("If you are an old white man: Welcome to DonaldOS! Type HELP to learn what you can do with this GREAT BEAUTIFUL SYSTEM!\n\n");
-            Sys.Console.ForegroundColor = Sys.ConsoleColor.White;
         }
         
         public static void Clear()
@@ -184,7 +219,7 @@ namespace DonaldOS
             System.Console.Clear();
         }
 
-        public static ConsoleKeyInfo ReadKey()
+        public static Sys.ConsoleKeyInfo ReadKey()
         {
             return Sys.Console.ReadKey();
         }

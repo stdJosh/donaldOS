@@ -35,34 +35,7 @@ namespace DonaldOS
                 return;
             }
 
-            var pressedKey = Console.PeekKey();
-
-            string input;
-
-            if (pressedKey.Key == Sys.ConsoleKey.UpArrow)
-            {
-                Console.previousCommand();
-                return;
-            }
-            else if (pressedKey.Key == Sys.ConsoleKey.DownArrow)
-            {
-                Console.nextCommand();
-                return;
-            }
-            else if (pressedKey.Key == Sys.ConsoleKey.Enter)
-            {
-                input = Console.getCurrentCommmand();
-                Console.WriteLine("");
-                if (input == null)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                input = Console.ReadLine();
-            }
-            CommandExecutionHelper.executeCommand(input);
+            Console.getAndHandleKey();
         }
     }
 }
