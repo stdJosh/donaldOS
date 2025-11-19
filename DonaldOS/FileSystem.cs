@@ -19,20 +19,6 @@ namespace DonaldOS
         private string lastCopied = null;
         private bool cut = false;
 
-        // Hilfsfunktionen (keine Path.* Nutzung)
-        private string EnsureTrailingSlash(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return @"0:\";
-            if (!path.EndsWith("\\")) return path + "\\";
-            return path;
-        }
-
-        private string CombinePaths(string basePath, string name)
-        {
-            basePath = EnsureTrailingSlash(basePath);
-            return basePath + name;
-        }
-
         private string GetFileNameFromPath(string path)
         {
             if (string.IsNullOrEmpty(path)) return path;
