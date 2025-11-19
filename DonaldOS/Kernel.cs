@@ -34,7 +34,6 @@ namespace DonaldOS
                 Console.checkScrolling();
                 return;
             }
-
             Console.getAndHandleKey();
         }
     }

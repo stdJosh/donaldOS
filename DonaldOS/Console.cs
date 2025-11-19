@@ -18,6 +18,7 @@ namespace DonaldOS
     private static List<string> consoleLines = new List<string>();
     private static List<string> previousCommands = new List<string>();
     private static int currentCommandIndex = -1;
+    private static int cursorPosition = 0;
 
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
@@ -78,6 +79,7 @@ namespace DonaldOS
                 case Sys.ConsoleKey.Enter:
                     {
                         currentCommandIndex = -1;
+                        cursorPosition = 0;
                         WriteLine("");
                         if (consoleLines[1] != null && consoleLines[1] != "")
                         {
@@ -92,7 +94,12 @@ namespace DonaldOS
                         {
                             return;
                         }
-                        consoleLines[0] = consoleLines[0].Remove(consoleLines[0].Length - 1);
+                        string newCurrentLine = consoleLines[0].Substring(0, consoleLines[0].Length - 1 - cursorPosition);
+                        if (cursorPosition != 0)
+                        {
+                            newCurrentLine += consoleLines[0].Substring(consoleLines[0].Length - cursorPosition);
+                        }
+                        consoleLines[0] = newCurrentLine;
                         reprint();
                         break;
                     }
@@ -106,9 +113,33 @@ namespace DonaldOS
                         nextCommand();
                         break;
                     }
+                case Sys.ConsoleKey.RightArrow:
+                    {
+                        if (cursorPosition <= 0)
+                        {
+                            return;
+                        }
+                        cursorPosition--;
+                        Sys.Console.SetCursorPosition(consoleLines[0].Length - cursorPosition, Sys.Console.GetCursorPosition().Top);
+                        break;
+                    }
+                case Sys.ConsoleKey.LeftArrow:
+                    {
+                        if (cursorPosition >= consoleLines[0].Length)
+                        {
+                            return;
+                        }
+                        cursorPosition++;
+                        Sys.Console.SetCursorPosition(consoleLines[0].Length - cursorPosition, Sys.Console.GetCursorPosition().Top);
+                        break;
+                    }
                 default:
                     {
-                        consoleLines[0] += key.KeyChar;
+                        consoleLines[0] = consoleLines[0].Insert(consoleLines[0].Length - cursorPosition, key.KeyChar.ToString());
+                        if (cursorPosition != 0)
+                        {
+                            reprint();
+                        }
                         break;
                     }
             }
@@ -156,6 +187,7 @@ namespace DonaldOS
             }
 
             Sys.Console.Write(consoleLines[0]);
+            Sys.Console.SetCursorPosition(consoleLines[0].Length - cursorPosition, Sys.Console.GetCursorPosition().Top);
         }
 
         public static void previousCommand()
