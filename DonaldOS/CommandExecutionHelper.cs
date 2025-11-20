@@ -100,10 +100,15 @@ namespace DonaldOS
 
                         Editor editor = new Editor(path);
 
-                        editor.ReadFile();
+                        try
+                        {
+                            editor.ReadFile();
 
-                        editor.editmode();
-
+                            editor.editmode();
+                        }
+                        catch (Sys.Exception ex){
+                            Console.WriteLine(ex.Message);
+                        }
                         break;
                     }
                 default:
