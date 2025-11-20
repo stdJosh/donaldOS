@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Sys = System;
 using CosmosSys = Cosmos.System;
 using Microsoft.VisualBasic.FileIO;
+using Cosmos.System;
 
 namespace DonaldOS
 {
@@ -26,13 +27,19 @@ namespace DonaldOS
         static Console()
         {
             consoleLines.Add("");
+            consoleLines.Add("and are in no way intended as an assessment.");
+            consoleLines.Add("exclusively for the sake of originality and entertainment ");
+            consoleLines.Add("All references to some actual existing person in a high political position are ");
         }
         public static void Write(string data)
         {
             foreach (string line in data.Split('\n'))
             {
-                consoleLines[0] += line;
-                consoleLines.Insert(0, "");
+                for (int i = 0;  line.Length < 80; i += 80)
+                {
+                    consoleLines[0] += line.Substring(i, i + 79);
+                    consoleLines.Insert(0, "");
+                }
             }
             consoleLines.RemoveAt(0);
             Sys.Console.Write(data);
@@ -65,16 +72,19 @@ namespace DonaldOS
         {
             string input = Sys.Console.ReadLine();
 
-            consoleLines[0] += input;
-            consoleLines.Insert(0, "");
+            for (int i = 0; input.Length < 80; i += 80)
+            {
+                consoleLines[0] += input.Substring(i, i + 79);
+                consoleLines.Insert(0, "");
+            }
             previousCommands.Insert(0, input);
             return input;
         }
 
         public static void getAndHandleKey()
         {
-            Sys.ConsoleKeyInfo key = Sys.Console.ReadKey();
-            switch (key.Key)
+            CosmosSys.KeyEvent key = CosmosSys.KeyboardManager.ReadKey();
+            switch (key.Key.ToConsoleKey())
             {
                 case Sys.ConsoleKey.Enter:
                     {
@@ -135,10 +145,24 @@ namespace DonaldOS
                     }
                 default:
                     {
-                        consoleLines[0] = consoleLines[0].Insert(consoleLines[0].Length - cursorPosition, key.KeyChar.ToString());
-                        if (cursorPosition != 0)
+                        char keyChar = key.KeyChar;
+                        if (char.IsLower(keyChar))
                         {
+                            keyChar = char.ToUpperInvariant(keyChar);
+                        }
+                        else if (char.IsUpper(keyChar))
+                        {
+                            keyChar = char.ToLowerInvariant(keyChar);
+                        }
+                        consoleLines[0] = consoleLines[0].Insert(consoleLines[0].Length - cursorPosition, keyChar.ToString());
+                        
+                        if (cursorPosition != 0)
+                        { 
                             reprint();
+                        }
+                        else
+                        {
+                            Sys.Console.Write(keyChar);
                         }
                         break;
                     }
@@ -150,7 +174,7 @@ namespace DonaldOS
             int scrollDiff = (int)CosmosSys.MouseManager.Y - 1000;
             if (Sys.Math.Abs(scrollDiff) >= scrollThreshold)
             {
-                int maxScrollOffset = Sys.Math.Max(0, consoleLines.Count - 25);
+                int maxScrollOffset = Sys.Math.Max(3, consoleLines.Count - 25);
                 int minScrollOffset = 0;
                 if (scrollDiff > 0 && currentScrollOffset <= minScrollOffset) // user scrolls down
                 {
@@ -242,6 +266,7 @@ namespace DonaldOS
             Sys.Console.Write(DonaldHimself.ascii);
             Sys.Threading.Thread.Sleep(500);
             Sys.Console.Clear();
+            WriteLine("\t\t^DISCLAIMER^");
             WriteLine(DonaldHimself.name);
             WriteLine("If you are an old white man: Welcome to DonaldOS! Type HELP to learn what you can do with this GREAT BEAUTIFUL SYSTEM!\n\n");
         }

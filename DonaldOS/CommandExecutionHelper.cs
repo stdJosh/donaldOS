@@ -13,15 +13,16 @@ namespace DonaldOS
         private static string currentPath = @"0:\";
         public static void executeCommand(string input)
         {
+            Console.WriteLine("");
             string[] args = input.Split(' ');
             switch (args[0])
             {
-                case "touch":
+                case "TOUCH":
                     {
                         fs.createFile(currentPath, args[1]);
                         break;
                     }
-                case "ls":
+                case "LS":
                     {
                         string path = currentPath;
                         bool recursive = false;
@@ -31,28 +32,28 @@ namespace DonaldOS
                         {
                             switch (args[i])
                             {
-                                case "--path":
+                                case "--PATH":
                                     {
                                         path = args[i + 1];
                                         i++;
                                         break;
                                     }
-                                case "--recursive":
+                                case "--RECURSIVE":
                                     {
                                         recursive = true;
                                         break;
                                     }
-                                case "--dirs":
+                                case "--DIRS":
                                     {
                                         elementTypes = FileSystemElementTypes.Dirs;
                                         break;
                                     }
-                                case "--files":
+                                case "--FILES":
                                     {
                                         elementTypes = FileSystemElementTypes.Files;
                                         break;
                                     }
-                                case "--filter":
+                                case "--FILTER":
                                     {
                                         filterString = args[i + 1];
                                         i++;
@@ -60,7 +61,7 @@ namespace DonaldOS
                                     }
                                 default:
                                     {
-                                        Console.WriteLine("ls: Unknown flag " + args[i] + "\nUse ls -h for help.");
+                                        Console.WriteLine("LS: Unknown flag " + args[i] + "\nUse ls -h for help.");
                                         return;
                                     }
                             }
@@ -71,26 +72,23 @@ namespace DonaldOS
                         }
                         catch (Sys.Exception e)
                         {
-                            Console.WriteLine("ls: " + e.ToString());
+                            Console.WriteLine("LS: " + e.ToString());
                         }
                         break;
                     }
-                case "rm":
+                case "RM":
                     {
                         fs.remove(@"0:\" + args[1]);
                         break;
                     }
-                case "test":
-                    {
-                        Console.reprint();
-                        break;
-                    }
                 default:
                     {
-                        Console.WriteLine(input);
+                        Console.WriteLine("If you've read anywhere that \"" + args[0] + "\" was a valid command, these where FAKE NEWS!!! Use HELP to get rid of these silly, silly ideas.");
                         break;
                     }
             }
+
+            Console.WriteLine("");
         }
     }
 }
