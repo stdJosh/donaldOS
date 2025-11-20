@@ -93,8 +93,8 @@ namespace DonaldOS
 
                     foreach (string d in dirs)
                     {
-                        string display = path + dirName;
-                        
+                        string display = Path.Combine(path, Path.GetFileName(d));
+
                         string full = Path.Combine(path, Path.GetFileName(d));
 
                         Console.WriteLine(full + "\\");
