@@ -23,6 +23,16 @@ namespace DonaldOS
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
 
+        internal static void ResetConsoleLines()
+        {
+            consoleLines.Clear();
+        }
+        
+        internal static void AddFirstLine()
+        {
+            consoleLines.Add("");
+        }
+
         static Console()
         {
             consoleLines.Add("");

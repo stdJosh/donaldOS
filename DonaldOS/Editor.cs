@@ -3,29 +3,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DonaldOS
 {
     // todo:
     // markieren und copy paste ? --
-    // scrollen können (pfeiltasten)  //
+    // scrollen können (pfeiltasten)  -/
     // zurück                         //
     // wieder vor                     //
     // schreiben / editiren           -/
     // beim nach oben drücken länge beachten -/
     // beim del in einer leeren zeile soll sie gelöscht werden bzw wenn wenn an pos 0 soll der "reststring" nach oben geschoben werden -/
-    // view machen (falls zu viele zeilen) //
-    // speichern lol //
+    // view machen (falls zu viele zeilen) -/
+    // speichern lol -/ 
     //offset mitzählen (oben, unten, links (bei 0), rechts bei length, delete (bei x%80 = 0 und y-offset = 0) und enter -/
     // error handling ? statt abstürzen evt lieber eine meldung ausgeben also immer ein try catch haben in der while(true) und das run beenden ? evt mit speichern
 
-    //ist scrollbar schon systemweit?
-    //vor zurück systemweit? (wahrscheinlich nicht) 
-    //copy paste mit makieren schon systemweit ? 
 
-    //aktuelles problem: 25. zeile nicht angezeigt (also der inhalt) aber editierbar
-    // mehrzeilige string werden immer als ganzes angezeigt
+    //aktuelles problem / noch zu machen: 25. zeile nicht angezeigt (also der inhalt) aber editierbar
+    // mehrzeilige string werden immer als ganzes angezeigt 
+    // programm schließen (automatisch speichern verfügbar machen)
+    // error handling ? automatisch gespeichert (real file zeug, cursor position, filesave, beenden, bei strings(wegen index) evt bei (sys. out of range)commandexecutionshelp, ex.tostring statt message)
+    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten
+    //vor zurück mit strg z und strg y und einer liste an changes  (alle lines speichern oder cursorposition und key)
+    // wenn ich dann zurück im editor bin sind alle änderungen mit in der anzeige ?
+
+
+
+    //user  management (read level, write level pro funktion prüfen und in string [0] speichern ? und nach auslesen abtrennen und extra speichern
 
     internal class Editor
     {
@@ -37,6 +44,7 @@ namespace DonaldOS
         int width = Console.WindowWidth;
         int extra = 0;
         int offset = 0;
+        bool saved = true;
 
         //kostruktor
         public Editor(string filename)
@@ -102,18 +110,103 @@ namespace DonaldOS
             //}
         }
 
+
+
+        private void SaveText()
+        {
+            Console.Clear();
+
+            Console.WriteLine("versuche speichern");
+
+
+            try
+            {
+                using (var fs = File.Open(filename, FileMode.Create, FileAccess.Write))
+                using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                {
+                    foreach (string line in rows)
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+                Console.WriteLine("Datei gespeichert!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fehler beim Speichern: " + ex.Message);
+            }
+        }
+
+        bool AskSaveAndDelete()
+        {
+            string antwort = "";
+
+            Console.Clear();
+
+            while (true)
+            {
+                Console.WriteLine("Moechtest du das Programm speichern und beenden? Ja/Nein");
+                antwort = Console.ReadLine()?.Trim().ToLower();
+
+                if (antwort == "ja" || antwort == "nein")
+                    break; // gültige Eingabe → Schleife verlassen
+
+                Console.WriteLine("Bitte gib 'Ja' oder 'Nein' ein!");
+                Thread.Sleep(1000);
+            }
+
+            if (antwort == "ja")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
         public void editmode()
         {
 
             while (true)
             {
                 //todo: nicht immer alles neu zeichnen
-                Cosmos.HAL.Global.TextScreen.Clear();
                 Console.Clear();
                 PrintFile();  // Gibt alle logischen Zeilen aus
                 Console.SetCursorPosition(cursorX % width, (cursorY + extra) - offset); // modulo für physische Zeile
 
                 ConsoleKeyInfo key = Console.ReadKey();
+
+                if (key.Key == ConsoleKey.S && (key.Modifiers & ConsoleModifiers.Control) != 0)
+                {
+                    SaveText();
+                    System.Threading.Thread.Sleep(3000);
+                    saved = true;
+                    continue;
+                }
+
+                if (key.Key == ConsoleKey.X && (key.Modifiers & ConsoleModifiers.Control) != 0)
+                {
+                    if (saved)
+                    {
+                        Console.Clear();
+                        break;
+                    }
+
+                    if (AskSaveAndDelete())
+                    {
+                        SaveText();
+                        System.Threading.Thread.Sleep(3000);
+                        Console.Clear();
+                        break;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                }
 
                 switch (key.Key)
                 {
@@ -277,6 +370,9 @@ namespace DonaldOS
                         break;
 
                     case ConsoleKey.Backspace:
+
+                        saved = false;
+
                         if (cursorX > 0)
                         {
                             //löscht das zeichen bei string[cursorX - 1] 
@@ -304,6 +400,8 @@ namespace DonaldOS
                         break;
 
                     case ConsoleKey.Enter:
+
+                        saved = false;
 
                         string rest = "";
                         if (cursorX < rows[cursorY].Length)
@@ -334,6 +432,9 @@ namespace DonaldOS
                             rows[cursorY] = rows[cursorY].Insert(cursorX, key.KeyChar.ToString());
                             cursorX++;
                         }
+
+                        saved = false;
+
                         break;
                 }
             }

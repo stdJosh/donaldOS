@@ -105,6 +105,11 @@ namespace DonaldOS
                             editor.ReadFile();
 
                             editor.editmode();
+
+                            //resetet die console lines weil da allesmitgeschrieben wird ?
+                            Console.ResetConsoleLines();
+                            Console.AddFirstLine();
+
                         }
                         catch (Sys.Exception ex){
                             Console.WriteLine(ex.Message);
