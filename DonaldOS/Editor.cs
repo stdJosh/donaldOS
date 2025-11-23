@@ -24,11 +24,11 @@ namespace DonaldOS
 
     //aktuelles problem / noch zu machen: 25. zeile nicht angezeigt (also der inhalt) aber editierbar
     // mehrzeilige string werden immer als ganzes angezeigt 
-    // programm schließen (automatisch speichern verfügbar machen)
+    // programm schließen (automatisch speichern verfügbar machen) -/
     // error handling ? automatisch gespeichert (real file zeug, cursor position, filesave, beenden, bei strings(wegen index) evt bei (sys. out of range)commandexecutionshelp, ex.tostring statt message)
-    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten
-    //vor zurück mit strg z und strg y und einer liste an changes  (alle lines speichern oder cursorposition und key)
-    // wenn ich dann zurück im editor bin sind alle änderungen mit in der anzeige ?
+    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten 
+    //vor zurück mit strg z und strg y und einer liste an changes  (alle lines speichern oder cursorposition und key) 
+    // wenn ich dann zurück im editor bin sind alle änderungen mit in der anzeige ? -/
 
 
 
@@ -73,12 +73,8 @@ namespace DonaldOS
             int max_begrenzer = 0;
             int n = 0;
 
-            //if (offset != 0)
-            //{
-            //    Console.WriteLine("offset ist " + offset);
-            //}
-
-            for (n = 0 + offset; n < rows.Count && n < offset + 24 - max_begrenzer; n++)
+            //0-23 (also 24) -> 0-21 (22)
+            for (n = 0 + offset; n < rows.Count && n < offset + 22 - max_begrenzer; n++)
             {
                 //muss testen ob die row abgeschnitten wird und somit das y beeinflusst (alle vorher)
                 if ((lang = rows[n].Length) > width && cursorY - offset > i)
@@ -98,16 +94,27 @@ namespace DonaldOS
                     extra += cursorX / width;
                 }
                 System.Console.WriteLine(rows[n]);
-
                 //Console.WriteLine(rows[n] + "         cursor ist bei " + offset);
-
                 i++;
             }
 
-            //if (offset != 0)
-            //{
-            //    Console.WriteLine("offset ist " + offset);
-            //}
+            while (i < 22)
+            {
+                System.Console.WriteLine("");
+                i++;  
+            }
+
+            System.Console.WriteLine("-------------------------------------------------------------------------------");
+            System.Console.Write("Comands: Ctrl+S = Save || Ctrl+X = End       Saved:"); 
+            if (saved)
+            {
+                System.Console.Write(" Yes");
+            }
+            else
+            {
+                System.Console.Write(" No");
+            }
+
         }
 
 
@@ -239,7 +246,7 @@ namespace DonaldOS
                             cursorY++;
                             cursorX = 0;
 
-                            if (cursorY - offset >= 23)
+                            if (cursorY - offset >= 21)
                             {
                                 offset++;
                             }
@@ -322,7 +329,7 @@ namespace DonaldOS
                                 //wenn die zeile darunter kürzer ist 
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                if (cursorY - offset >= 23)
+                                if (cursorY - offset >= 21)
                                 {
                                     offset++;
                                 }
@@ -340,7 +347,7 @@ namespace DonaldOS
                                     currentLine = rows[cursorY];
                                     if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                    if (cursorY - offset >= 23)
+                                    if (cursorY - offset >= 21)
                                     {
                                         offset++;
                                     }
@@ -359,7 +366,7 @@ namespace DonaldOS
                                 currentLine = rows[cursorY];
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                if (cursorY - offset >= 23)
+                                if (cursorY - offset >= 21)
                                 {
                                     offset++;
                                 }
@@ -415,7 +422,7 @@ namespace DonaldOS
                             rows.Add(rest); // falls du am Ende bist 
 
 
-                        if (cursorY - offset >= 23)
+                        if (cursorY - offset >= 21)
                         {
                             offset++;
                         }
