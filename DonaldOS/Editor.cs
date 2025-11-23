@@ -174,6 +174,11 @@ namespace DonaldOS
                 //todo: nicht immer alles neu zeichnen
                 Console.Clear();
                 PrintFile();  // Gibt alle logischen Zeilen aus
+
+                //damit ConsoleLines liste nicht zu voll wird
+                Console.ResetConsoleLines();
+                Console.AddFirstLine();
+
                 Console.SetCursorPosition(cursorX % width, (cursorY + extra) - offset); // modulo für physische Zeile
 
                 ConsoleKeyInfo key = Console.ReadKey();

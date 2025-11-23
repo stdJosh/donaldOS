@@ -102,13 +102,13 @@ namespace DonaldOS
 
                         try
                         {
+                            Console.CopyConsoleLines();
+
                             editor.ReadFile();
 
                             editor.editmode();
 
-                            //resetet die console lines weil da allesmitgeschrieben wird ?
-                            Console.ResetConsoleLines();
-                            Console.AddFirstLine();
+                            Console.PasteConsoleLines();
 
                         }
                         catch (Sys.Exception ex){
