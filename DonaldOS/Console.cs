@@ -23,30 +23,6 @@ namespace DonaldOS
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
 
-    //für editor
-    private static List<string> consoleLines2 = new List<string>();
-
-        internal static void ResetConsoleLines()
-        {
-            consoleLines.Clear();
-        }
-         
-        internal static void AddFirstLine()
-        {
-            consoleLines.Add("");
-        }
-
-        internal static void CopyConsoleLines()
-        {
-            consoleLines2 = new List<string>(consoleLines);
-        }
-
-        internal static void PasteConsoleLines()
-        {
-            consoleLines = new List<string>(consoleLines2);
-        }
-
-
         static Console()
         {
             consoleLines.Add("");

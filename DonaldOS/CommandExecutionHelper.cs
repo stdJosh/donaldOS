@@ -102,18 +102,16 @@ namespace DonaldOS
 
                         try
                         {
-                            Console.CopyConsoleLines();
 
                             editor.ReadFile();
 
                             editor.editmode();
 
-                            Console.PasteConsoleLines();
-
                         }
                         catch (Sys.Exception ex){
                             Console.WriteLine(ex.Message);
                         }
+                        Console.reprint();
                         break;
                     }
                 default:

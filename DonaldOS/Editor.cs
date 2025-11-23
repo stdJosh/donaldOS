@@ -56,7 +56,7 @@ namespace DonaldOS
         //initialisieren der rows
         public void ReadFile()
         {
-            Console.Clear();
+            System.Console.Clear();
             rows = new List<string>(File.ReadAllLines(filename));
 
             if (rows.Count == 0)
@@ -97,7 +97,7 @@ namespace DonaldOS
                     //extra dazuzeählen wenn nicht in 1. "zeile"
                     extra += cursorX / width;
                 }
-                Console.WriteLine(rows[n]);
+                System.Console.WriteLine(rows[n]);
 
                 //Console.WriteLine(rows[n] + "         cursor ist bei " + offset);
 
@@ -114,9 +114,9 @@ namespace DonaldOS
 
         private void SaveText()
         {
-            Console.Clear();
+            System.Console.Clear();
 
-            Console.WriteLine("versuche speichern");
+            System.Console.WriteLine("versuche speichern");
 
 
             try
@@ -129,11 +129,11 @@ namespace DonaldOS
                         sw.WriteLine(line);
                     }
                 }
-                Console.WriteLine("Datei gespeichert!");
+                System.Console.WriteLine("Datei gespeichert!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Fehler beim Speichern: " + ex.Message);
+                System.Console.WriteLine("Fehler beim Speichern: " + ex.Message);
             }
         }
 
@@ -141,17 +141,17 @@ namespace DonaldOS
         {
             string antwort = "";
 
-            Console.Clear();
+            System.Console.Clear();
 
             while (true)
             {
-                Console.WriteLine("Moechtest du das Programm speichern und beenden? Ja/Nein");
-                antwort = Console.ReadLine()?.Trim().ToLower();
+                System.Console.WriteLine("Moechtest du das Programm vorher speichern und dann erst beenden? Ja/Nein");
+                antwort = System.Console.ReadLine()?.Trim().ToLower();
 
                 if (antwort == "ja" || antwort == "nein")
                     break; // gültige Eingabe → Schleife verlassen
 
-                Console.WriteLine("Bitte gib 'Ja' oder 'Nein' ein!");
+                System.Console.WriteLine("Bitte gib 'Ja' oder 'Nein' ein!");
                 Thread.Sleep(1000);
             }
 
@@ -172,16 +172,12 @@ namespace DonaldOS
             while (true)
             {
                 //todo: nicht immer alles neu zeichnen
-                Console.Clear();
+                System.Console.Clear();
                 PrintFile();  // Gibt alle logischen Zeilen aus
 
-                //damit ConsoleLines liste nicht zu voll wird
-                Console.ResetConsoleLines();
-                Console.AddFirstLine();
+                System.Console.SetCursorPosition(cursorX % width, (cursorY + extra) - offset); // modulo für physische Zeile
 
-                Console.SetCursorPosition(cursorX % width, (cursorY + extra) - offset); // modulo für physische Zeile
-
-                ConsoleKeyInfo key = Console.ReadKey();
+                System.ConsoleKeyInfo key = System.Console.ReadKey();
 
                 if (key.Key == ConsoleKey.S && (key.Modifiers & ConsoleModifiers.Control) != 0)
                 {
@@ -195,7 +191,7 @@ namespace DonaldOS
                 {
                     if (saved)
                     {
-                        Console.Clear();
+                        System.Console.Clear();
                         break;
                     }
 
@@ -203,12 +199,12 @@ namespace DonaldOS
                     {
                         SaveText();
                         System.Threading.Thread.Sleep(3000);
-                        Console.Clear();
+                        System.Console.Clear();
                         break;
                     }
                     else
                     {
-                        continue;
+                        break;
                     }
 
                 }
