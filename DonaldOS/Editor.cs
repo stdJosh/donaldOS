@@ -73,8 +73,8 @@ namespace DonaldOS
             int max_begrenzer = 0;
             int n = 0;
 
-            //0-23 (also 24) -> 0-21 (22)
-            for (n = 0 + offset; n < rows.Count && n < offset + 22 - max_begrenzer; n++)
+            //0-23 (also 24) -> 0-21 (22) (wegen 2 status zeilen) -> 0-22(23) (wegen der einen leeren zeile unten die jetzt weg ist)
+            for (n = 0 + offset; n < rows.Count && n < offset + 23 - max_begrenzer; n++)
             {
                 //muss testen ob die row abgeschnitten wird und somit das y beeinflusst (alle vorher)
                 if ((lang = rows[n].Length) > width && cursorY - offset > i)
@@ -98,7 +98,8 @@ namespace DonaldOS
                 i++;
             }
 
-            while (i < 22)
+            //die 23 zeilen voll machen 
+            while (i < 23)
             {
                 System.Console.WriteLine("");
                 i++;  
@@ -246,7 +247,7 @@ namespace DonaldOS
                             cursorY++;
                             cursorX = 0;
 
-                            if (cursorY - offset >= 21)
+                            if (cursorY - offset >= 22)
                             {
                                 offset++;
                             }
@@ -329,7 +330,7 @@ namespace DonaldOS
                                 //wenn die zeile darunter kürzer ist 
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                if (cursorY - offset >= 21)
+                                if (cursorY - offset >= 22)
                                 {
                                     offset++;
                                 }
@@ -347,7 +348,7 @@ namespace DonaldOS
                                     currentLine = rows[cursorY];
                                     if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                    if (cursorY - offset >= 21)
+                                    if (cursorY - offset >= 22)
                                     {
                                         offset++;
                                     }
@@ -366,7 +367,7 @@ namespace DonaldOS
                                 currentLine = rows[cursorY];
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                if (cursorY - offset >= 21)
+                                if (cursorY - offset >= 22)
                                 {
                                     offset++;
                                 }
@@ -422,7 +423,7 @@ namespace DonaldOS
                             rows.Add(rest); // falls du am Ende bist 
 
 
-                        if (cursorY - offset >= 21)
+                        if (cursorY - offset >= 22)
                         {
                             offset++;
                         }
