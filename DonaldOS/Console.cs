@@ -96,6 +96,10 @@ namespace DonaldOS
                             previousCommands.Insert(0, consoleLines[1]);
                             CommandExecutionHelper.executeCommand(consoleLines[1]);
                         }
+                        else
+                        {
+                            WriteLine("You didn't say anything but pressed ENTER. WHAT? You wanna tell me I'm an old deaf man who doesn't understand your commands anymore? It's SCIENTIFICALLY PROVEN that I AM IN EXCELLENT HEALTH!!!\n");
+                        }
                         break;
                     }
                 case Sys.ConsoleKey.Backspace:
