@@ -67,11 +67,11 @@ namespace DonaldOS
             {
                 if (!File.Exists(UserFile))
                 {
-                    // Datei anlegen, sofern nicht existiert
                     Directory.CreateDirectory(Path.GetDirectoryName(UserFile));
                     File.WriteAllText(UserFile, "");
                     return;
                 }
+
                 using (var fs = File.Open(UserFile, FileMode.Open, FileAccess.Read))
                 using (var sr = new StreamReader(fs, Encoding.UTF8))
                 {
@@ -152,5 +152,21 @@ namespace DonaldOS
         {
             return users;
         }
+
+        public void InitializeAdminInteractive()
+        {
+            Console.WriteLine("Keine Benutzer gefunden – Initialen Admin anlegen.");
+            Console.Write("Neuer Admin-Benutzername: ");
+            string username = Console.ReadLine();
+
+            Console.Write("Passwort festlegen: ");
+            string password = Console.ReadLine();
+
+            users.Add(new User(username, password, "admin"));
+            SaveUsers();
+
+            Console.WriteLine("Initialer Admin wurde erstellt.");
+        }
+
     }
 }

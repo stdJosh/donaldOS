@@ -13,7 +13,7 @@ namespace DonaldOS
     {
         private static FileSystem fs = new FileSystem();
         private static string currentPath = @"0:\";
-        private static UserManager um = new UserManager();
+        private static UserManager um = Kernel.SharedUserManager;
 
         public static void executeCommand(string input)
         {

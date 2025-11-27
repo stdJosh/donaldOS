@@ -11,6 +11,8 @@ namespace DonaldOS
 {
     public class Kernel : CosmosSys.Kernel
     {
+        internal static UserManager SharedUserManager = new UserManager();
+
         CosmosSys.FileSystem.CosmosVFS vfs = new CosmosSys.FileSystem.CosmosVFS();
 
 
@@ -19,17 +21,16 @@ namespace DonaldOS
             
             CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
 
-            
-            var um = new UserManager();
 
-            
+            var um = SharedUserManager;
+
+
             if (!um.ListUsers().Any())
             {
-                um.CreateUser("admin", "admin", "admin");
-                Console.WriteLine("Default admin user 'admin' erstellt (Passwort: admin).");
+                um.InitializeAdminInteractive();
             }
 
-            
+
             CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
 
             CosmosSys.MouseManager.ScreenWidth = 200;
@@ -42,6 +43,26 @@ namespace DonaldOS
 
         protected override void Run()
         {
+            var um = SharedUserManager;
+            if (um.CurrentUser == null)
+            {
+                Console.WriteLine("Bitte einloggen, bevor Sie das System nutzen.");
+                Console.Write("Username: ");
+                string u = Console.ReadLine();
+
+                Console.Write("Passwort: ");
+                string p = Console.ReadLine();
+
+                if (!um.Login(u, p))
+                {
+                    Console.WriteLine("Login fehlgeschlagen.");
+                    return;
+                }
+
+                Console.WriteLine("Erfolgreich eingeloggt.");
+            }
+
+
             Sys.Threading.Thread.Sleep(5);
             if (!Sys.Console.KeyAvailable)
             {
