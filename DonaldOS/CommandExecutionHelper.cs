@@ -147,21 +147,19 @@ namespace DonaldOS
                                 Console.WriteLine("Usage: mkdir <name>");
                                 break;
                             }
-
                             string name = args[1];
                             string target = fs.NormalizePath(currentPath, name);
                             fs.MakeDir(target);
                             break;
                         }
-
-                    case "cd":
+                        case "cd":
                         {
                             if (args.Length < 2)
                             {
                                 Console.WriteLine("Usage: cd <path>");
                                 break;
                             }
-
+                            
                             string requested = args[1];
 
                             // Root
@@ -209,6 +207,36 @@ namespace DonaldOS
                             }
                             break;
                         }
+                case "edit":
+                    {
+                        string path = "";
+
+                        if (args.Length > 1)
+                        {
+                            path = args[1];
+                        }
+                        else
+                        {
+                            path = currentPath;
+                        }
+
+                        Editor editor = new Editor(path);
+
+                        try
+                        {
+
+                            editor.ReadFile();
+
+                            editor.editmode();
+
+                        }
+                        catch (Sys.Exception ex){
+                            Console.WriteLine(ex.Message);
+                        }
+                        Console.reprint();
+                        break;
+                    }
+                            
 
                     case "copy":
                         {
