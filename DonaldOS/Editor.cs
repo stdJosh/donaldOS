@@ -22,15 +22,16 @@ namespace DonaldOS
     // error handling ? statt abstürzen evt lieber eine meldung ausgeben also immer ein try catch haben in der while(true) und das run beenden ? evt mit speichern
 
 
-    //aktuelles problem / noch zu machen: 25. zeile nicht angezeigt (also der inhalt) aber editierbar
-    // mehrzeilige string werden immer als ganzes angezeigt 
+    //aktuelles problem / noch zu machen: 25. zeile nicht angezeigt (also der inhalt) aber editierbar -/
+    // mehrzeilige string werden immer als ganzes angezeigt  -/
     // programm schließen (automatisch speichern verfügbar machen) -/
     // error handling ? automatisch gespeichert (real file zeug, cursor position, filesave, beenden, bei strings(wegen index) evt bei (sys. out of range)commandexecutionshelp, ex.tostring statt message)
-    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten 
+    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten -/
     //vor zurück mit strg z und strg y und einer liste an changes  (alle lines speichern oder cursorposition und key) 
     // wenn ich dann zurück im editor bin sind alle änderungen mit in der anzeige ? -/
 
-
+    // nach unten scrollen -> prüfen ob oben noch was kommt -/
+    // beim delete in der letzten zeile soll eins hoch gescrollt werden oder?
 
     //user  management (read level, write level pro funktion prüfen und in string [0] speichern ? und nach auslesen abtrennen und extra speichern
 
@@ -45,6 +46,13 @@ namespace DonaldOS
         int extra = 0;
         int offset = 0;
         bool saved = true;
+
+        //ab dem wie vielten 80. ? -> 0=0,1=80,2=160
+        int topbegin = 0;
+
+        //wie viele zeilen unten wegschneiten
+        int bottomend = 0;
+        int n = 0;
 
         //kostruktor
         public Editor(string filename)
@@ -69,44 +77,88 @@ namespace DonaldOS
         {
             int lang;
             extra = 0;
+            //gibt an wie viele zeilen gefüllt sind
             int i = 0;
             int max_begrenzer = 0;
-            int n = 0;
 
             //0-23 (also 24) -> 0-21 (22) (wegen 2 status zeilen) -> 0-22(23) (wegen der einen leeren zeile unten die jetzt weg ist)
             for (n = 0 + offset; n < rows.Count && n < offset + 23 - max_begrenzer; n++)
             {
-                //muss testen ob die row abgeschnitten wird und somit das y beeinflusst (alle vorher)
-                if ((lang = rows[n].Length) > width && cursorY - offset > i)
+
+                if (i == 0 && (((rows[n].Length - (topbegin * width)) - 1) / width) + 1 > 23 - i)
                 {
-                    extra += (lang / width);
+                    int remaining = 23 - i;
+                    int maxChars = remaining * width;
+                    int take = Math.Min(rows[n].Length - (topbegin * width), maxChars);
+                    System.Console.WriteLine(rows[n].Substring(topbegin * width, take));
+
+                    n = rows.Count; // Rest skippen
+                    i = 23;
+                    continue;
+                }
+
+                //prüfen ob der string zu lang wäre
+                if (((rows[n].Length - 1) / width) + 1 > 23 - i)
+                {
+                    int remaining = 23 - i;
+                    int maxChars = remaining * width;
+                    int take = Math.Min(rows[n].Length, maxChars);
+
+                    System.Console.WriteLine(rows[n].Substring(0, take));
+
+                    n = rows.Count; // Rest skippen
+                    i = 23;
+                    continue;
+                }
+
+                //muss testen ob die row abgeschnitten wird und somit das y beeinflusst (alle vorher)
+                if ((lang = rows[n].Length) > width && (cursorY + extra) - offset > i)
+                {
+                    extra += ((lang - 1) / width);
+                }
+
+                //der akktuelle string
+                if (i == (cursorY + extra) - offset)
+                {
+                    //extra dazuzeählen wenn nicht in 1. "zeile"
+                    extra += (cursorX / width);
+                }
+
+                if (i == 0 && topbegin > 0)
+                {
+                    extra -= topbegin;
                 }
 
                 if ((lang = rows[n].Length) > width)
                 {
-                    max_begrenzer += (lang / width);
+                    if (i == 0)
+                    {
+                        //den ersten string ab topbeginn ausgeben und auch nur diese länge für begrenzer bewerten
+                        System.Console.WriteLine(rows[n].Substring(topbegin * width));
+                        max_begrenzer += (((lang - (topbegin * width)) - 1) / width);
+                        i += (((lang - (topbegin * width))) / width) + 1;
+                        continue;
+                    }
+                    else
+                    {
+                        max_begrenzer += ((lang - 1) / width);
+                    }
                 }
 
-                //der akktuelle string
-                if (i == cursorY - offset)
-                {
-                    //extra dazuzeählen wenn nicht in 1. "zeile"
-                    extra += cursorX / width;
-                }
                 System.Console.WriteLine(rows[n]);
-                //Console.WriteLine(rows[n] + "         cursor ist bei " + offset);
-                i++;
+                i += ((rows[n].Length) / width) + 1;
             }
 
             //die 23 zeilen voll machen 
             while (i < 23)
             {
                 System.Console.WriteLine("");
-                i++;  
+                i++;
             }
 
             System.Console.WriteLine("-------------------------------------------------------------------------------");
-            System.Console.Write("Comands: Ctrl+S = Save || Ctrl+X = End       Saved:"); 
+            System.Console.Write("Comands: Ctrl+S = Save || Ctrl+X = End       Saved:");
+            //System.Console.Write("cursorX:" + cursorX + " cursorY:"+cursorY + " offset:"+offset+ " extra:"+extra);
             if (saved)
             {
                 System.Console.Write(" Yes");
@@ -219,20 +271,34 @@ namespace DonaldOS
 
                 switch (key.Key)
                 {
+                    //bis hierhin gekommen
                     case ConsoleKey.LeftArrow:
                         if (cursorX > 0)
                         {
+                            //in view ganz oben aber x nicht 0 aber ganz links  
+                            if ((cursorY + extra) - offset == 0 && cursorX % width == 0 && topbegin > 0)
+                            {
+                                topbegin--;
+                            }
+
                             cursorX--;
                         }
                         else if (cursorY > 0)
                         {
                             cursorX = rows[cursorY - 1].Length;
 
-                            if (cursorY - offset == 0)
+                            if ((cursorY + extra) - offset == 0)
                             {
-                                offset--;
+                                if (topbegin == 0 && rows[offset - 1].Length > width)
+                                {
+                                    topbegin = (rows[offset - 1].Length - 1) / width;
+                                    offset--;
+                                }
+                                else
+                                {
+                                    offset--;
+                                }
                             }
-
                             cursorY--;
                         }
                         break;
@@ -240,18 +306,46 @@ namespace DonaldOS
                     case ConsoleKey.RightArrow:
                         if (cursorX < rows[cursorY].Length)
                         {
+                            //wenn am ende einer zeile und mit cursorY ganz unten am bildschirm
+                            if (cursorX % width == 0 && (cursorY + extra) - offset >= 23)
+                            {
+                                if ((rows[offset].Length - 1) / width > topbegin)
+                                {
+                                    topbegin++;
+                                }
+                                else
+                                {
+                                    topbegin = 0;
+                                    offset++;
+                                }
+                            }
                             cursorX++;
                         }
                         else if (cursorY + 1 < rows.Count)
                         {
+                            //scrollen
+                            if ((cursorY + extra) - offset >= 22)
+                            {
+                                if ((rows[offset].Length - 1) / width > topbegin)
+                                {
+                                    topbegin++;
+                                }
+                                else
+                                {
+                                    topbegin = 0;
+                                    offset++;
+                                }
+                                //if (rows[n].Length/width > bottomend)
+                                //{
+                                //    bottomend++;
+                                //}
+                                //else
+                                //{
+                                //    bottomend = 0;
+                                //}
+                            }
                             cursorY++;
                             cursorX = 0;
-
-                            if (cursorY - offset >= 22)
-                            {
-                                offset++;
-                            }
-
                         }
                         break;
 
@@ -265,12 +359,19 @@ namespace DonaldOS
                             cursorXrow2++;
                         }
 
+                        //nicht in 1. zeile des Strings
                         if (line.Length > width && cursorXrow2 > 1)
                         {
                             // Noch innerhalb der gleichen logischen Zeile -> eine physische Zeile hoch
                             cursorX -= width;
                             if (cursorX < 0)
                                 cursorX = 0;
+
+                            //oberste zeile ist nicht die 1. zeile eines strings
+                            if ((cursorY + extra) - offset == 0 && topbegin != 0)
+                            {
+                                topbegin--;
+                            }
 
                             //multilineoffset
                         }
@@ -292,7 +393,7 @@ namespace DonaldOS
                                 else
                                 {
                                     // Neue Cursorposition innerhalb der vorherigen logischen Zeile
-                                    // gleiche horizontale Position beibehalten, aber eine Zeile höher landen
+                                    // gleiche vertikale Position beibehalten, aber eine Zeile höher landen
                                     cursorX = (prevlinerows - 1) * width + (cursorX % width);
                                 }
 
@@ -301,9 +402,17 @@ namespace DonaldOS
                                 if (cursorX > prevLine.Length)
                                     cursorX = prevLine.Length;
 
-                                if (cursorY - offset == 0)
+                                if ((cursorY + extra) - offset == 0)
                                 {
-                                    offset--;
+                                    if (topbegin == 0 && rows[offset - 1].Length > width)
+                                    {
+                                        topbegin = (rows[offset - 1].Length - 1) / width;
+                                        offset--;
+                                    }
+                                    else
+                                    {
+                                        offset--;
+                                    }
                                 }
                                 cursorY--;
                             }
@@ -325,55 +434,78 @@ namespace DonaldOS
                             //wenn es in dem mehrzeilingen string noch eine zeile gibt 
                             if (cursorXrow < currentlinerow)
                             {
-                                // Zeile ist länger als Bildschirmbreite 
                                 cursorX += width;
                                 //wenn die zeile darunter kürzer ist 
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
 
-                                if (cursorY - offset >= 22)
+                                if ((cursorY + extra) - offset >= 22)
                                 {
-                                    offset++;
-                                }
 
+                                    if ((rows[offset].Length - 1) / width > topbegin)
+                                    {
+                                        topbegin++;
+                                    }
+                                    else
+                                    {
+                                        topbegin = 0;
+                                        offset++;
+                                    }
+                                }
                             }
                             //das gleiche wie wenn es keine mehrere reihen geben würde
                             else
                             {
-                                // Zeile passt auf Bildschirmbreite -> nächste Zeile
+                                // es gibt noch eine -> nächste Zeile
+                                //merken -1
                                 if (cursorY < rows.Count - 1)
                                 {
+
+                                    if ((cursorY + extra) - offset >= 22)
+                                    {
+
+                                        if ((rows[offset].Length - 1) / width > topbegin)
+                                        {
+                                            topbegin++;
+                                        }
+                                        else
+                                        {
+                                            topbegin = 0;
+                                            offset++;
+                                        }
+                                    }
                                     cursorY++;
                                     //falls es vorher mehrere zeilen waren wäre cursor X zu hoch
                                     cursorX = cursorX % width;
                                     currentLine = rows[cursorY];
                                     if (cursorX > currentLine.Length) cursorX = currentLine.Length;
-
-                                    if (cursorY - offset >= 22)
-                                    {
-                                        offset++;
-                                    }
-
                                 }
                             }
                         }
                         else
                         {
-                            // Zeile passt auf Bildschirmbreite -> nächste Zeile
+                            // es gibt noch eine -> nächste Zeile
+                            //merken -1
                             if (cursorY < rows.Count - 1)
                             {
 
+                                if ((cursorY + extra) - offset >= 22)
+                                {
+
+                                    if ((rows[offset].Length - 1) / width > topbegin)
+                                    {
+                                        topbegin++;
+                                    }
+                                    else
+                                    {
+                                        topbegin = 0;
+                                        offset++;
+                                    }
+                                }
+                                cursorY++;
                                 //falls es vorher mehrere zeilen waren wäre cursor X zu hoch
                                 cursorX = cursorX % width;
                                 currentLine = rows[cursorY];
                                 if (cursorX > currentLine.Length) cursorX = currentLine.Length;
-
-                                if (cursorY - offset >= 22)
-                                {
-                                    offset++;
-                                }
-
-                                cursorY++;
-
                             }
                         }
                         break;
@@ -399,9 +531,17 @@ namespace DonaldOS
 
                             cursorX = oldLen;
 
-                            if (cursorY - offset == 0)
+                            if ((cursorY + extra) - offset == 0)
                             {
-                                offset--;
+                                if (topbegin == 0 && rows[offset - 1].Length > width)
+                                {
+                                    topbegin = (rows[offset - 1].Length - 1) / width;
+                                    offset--;
+                                }
+                                else
+                                {
+                                    offset--;
+                                }
                             }
 
                             cursorY--;
@@ -423,9 +563,17 @@ namespace DonaldOS
                             rows.Add(rest); // falls du am Ende bist 
 
 
-                        if (cursorY - offset >= 22)
+                        if ((cursorY + extra) - offset >= 22)
                         {
-                            offset++;
+                            if ((rows[offset].Length - 1) / width > topbegin)
+                            {
+                                topbegin++;
+                            }
+                            else
+                            {
+                                topbegin = 0;
+                                offset++;
+                            }
                         }
 
                         cursorY++;
