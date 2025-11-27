@@ -18,7 +18,7 @@ namespace DonaldOS
         {
             { "HELP", (args => help(), "", "Prints this help if you aren't as intelligent as I am ... of course you aren't.") },
             { "TOUCH", (args => touch(args), "<filename>", "Creates a new file in the current working directory respectively in the specified absolute path and tries to get it through the congress - well, at least the latter is what it SHOULD do, but the developers are too dumb...") },
-            { "LS", (args => ls(args), "<[flags]>", "Lists all decrees ... ehhh files. Use LS --H for more details.") },
+            { "LS", (args => ls(args), "<[flags]>", "Lists all decrees ... ehhh files. Use LS --HELP for more details.") },
             { "RM", (args => rm(args), "<filename | directoryname>", "FIRES the element instantly --- :D") },
             { "SHUTDOWN", (args => shutdown(), "", "No no no this has nothing to do with a government shutdown, it's just about this system.") },
             { "NUKE", (args => nuke(), "<destination>", "Starts a nuclear war with the given country. Be careful!") }
@@ -98,9 +98,19 @@ namespace DonaldOS
                             i++;
                             break;
                         }
+                    case "--HELP":
+                        {
+                            Console.WriteLine("By default, LS lists the content of the current working directory. You can configure its behaviour by using the following optional flags:");
+                            Console.WriteLine("--PATH <path>: Show the content of the specified path");
+                            Console.WriteLine("--FILTER <string>: Only show elements whose name contains the filter string");
+                            Console.WriteLine("--DIRS: Show directories only");
+                            Console.WriteLine("--FILES: Show files only");
+                            Console.WriteLine("--RECURSIVE: Resolve directories recursively");
+                            break;
+                        }
                     default:
                         {
-                            Console.WriteLine("LS: Unknown flag " + args[i] + "\nUse LS -H for help.");
+                            Console.WriteLine("LS: Unknown flag " + args[i] + "\nUse LS -HELP for help.");
                             return;
                         }
                 }
