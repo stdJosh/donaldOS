@@ -1,426 +1,143 @@
-﻿using IL2CPU.API.Attribs;
-using System;
+﻿using Sys = System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sys = System;
+using System.Net.Sockets;
+using CosmosSys = Cosmos.System;
 
 namespace DonaldOS
 {
     internal static class CommandExecutionHelper
     {
         private static FileSystem fs = new FileSystem();
-        private static string currentPath = @"0:\";
-        private static UserManager um = Kernel.SharedUserManager;
 
+        private static string currentPath = @"0:\";
+
+        private static Dictionary<string, (Sys.Action<string[]>, string, string)> commands = new Dictionary<string, (Sys.Action<string[]> action, string possibleArgs, string helpText)>
+        {
+            { "HELP", (args => help(), "", "Prints this help if you aren't as intelligent as I am ... of course you aren't.") },
+            { "TOUCH", (args => touch(args), "<filename>", "Creates a new file in the current working directory respectively in the specified absolute path and tries to get it through the congress - well, at least the latter is what it SHOULD do, but the developers are too dumb...") },
+            { "LS", (args => ls(args), "<[flags]>", "Lists all decrees ... ehhh files. Use LS --HELP for more details.") },
+            { "RM", (args => rm(args), "<filename | directoryname>", "FIRES the element instantly --- :D") },
+            { "SHUTDOWN", (args => shutdown(), "", "No no no this has nothing to do with a government shutdown, it's just about this system.") },
+            { "NUKE", (args => nuke(), "<destination>", "Starts a nuclear war with the given country. Be careful!") }
+        };
         public static void executeCommand(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            Console.WriteLine("");
+
+            string[] args = input.Split(' ');
+
+            if (!commands.ContainsKey(args[0]))
             {
+                Console.WriteLine("If you've read anywhere that \"" + args[0] + "\" was a valid command, these where FAKE NEWS!!! Use HELP to get rid of these silly, silly ideas.\n");
                 return;
             }
 
-            // Sauber splitten (leere Einträge entfernen)
-            string[] args = input.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (args.Length == 0) return;
-
-            string cmd = args[0].ToLowerInvariant();
-
             try
             {
-                switch (cmd)
+                commands[args[0]].Item1(args);
+            }
+            catch (Sys.Exception e)
+            {
+                Console.WriteLine("Something went wrong executing your command " + input + ": " + e.ToString()
+                    + "\nSomeone gonna get fired I swear to you...");
+            }
+
+            Console.WriteLine("");
+        }
+
+        private static void help()
+        {
+            foreach (var (name, (_, possibleArgs, helpText)) in commands)
+            {
+                Console.WriteLine(name + " " + possibleArgs + " - " + helpText + "\n");
+            }
+        }
+
+        private static void touch(string[] args)
+        {
+            fs.createFile(currentPath, args[1]);
+        }
+
+        private static void ls(string[] args)
+        {
+            string path = currentPath;
+            bool recursive = false;
+            FileSystemElementTypes elementTypes = FileSystemElementTypes.All;
+            string filterString = "";
+            for (int i = 1; i < args.Length; i++)
+            {
+                switch (args[i])
                 {
-                    case "touch":
+                    case "--PATH":
                         {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                                if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: touch <filename>");
-                                break;
-                            }
-                            fs.createFile(currentPath, args[1]);
+                            path = args[i + 1];
+                            i++;
                             break;
                         }
-
-                    case "ls":
+                    case "--DIRS":
                         {
-                            string path = currentPath;
-                            bool recursive = false;
-                            FileSystemElementTypes elementTypes = FileSystemElementTypes.All;
-                            string filterString = "";
-                            for (int i = 1; i < args.Length; i++)
-                            {
-                                switch (args[i])
-                                {
-                                    case "--path":
-                                        {
-                                            if (i + 1 >= args.Length)
-                                            {
-                                                Console.WriteLine("ls: --path requires a parameter");
-                                                return;
-                                            }
-                                            path = args[i + 1];
-                                            i++;
-                                            break;
-                                        }
-                                    case "--recursive":
-                                        {
-                                            recursive = true;
-                                            break;
-                                        }
-                                    case "--dirs":
-                                        {
-                                            elementTypes = FileSystemElementTypes.Dirs;
-                                            break;
-                                        }
-                                    case "--files":
-                                        {
-                                            elementTypes = FileSystemElementTypes.Files;
-                                            break;
-                                        }
-                                    case "--filter":
-                                        {
-                                            if (i + 1 >= args.Length)
-                                            {
-                                                Console.WriteLine("ls: --filter requires a parameter");
-                                                return;
-                                            }
-                                            filterString = args[i + 1];
-                                            i++;
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            Console.WriteLine("ls: Unknown flag " + args[i] + "\nUse ls --path <path> --recursive --dirs --files --filter <text>");
-                                            return;
-                                        }
-                                }
-                            }
-
-                            // Versuche, relativen Pfad zu normalisieren (falls FileSystem.NormalizePath genutzt werden soll)
-                            string normalized = fs.NormalizePath(currentPath, path);
-                            fs.listDir(normalized, 0, recursive, elementTypes, filterString);
+                            elementTypes = FileSystemElementTypes.Dirs;
                             break;
                         }
-
-                    case "rm":
+                    case "--FILES":
                         {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: rm <path>");
-                                break;
-                            }
-
-                            // rm kann absolute oder relative Pfade akzeptieren
-                            string target = fs.NormalizePath(currentPath, args[1]);
-                            fs.remove(target);
+                            elementTypes = FileSystemElementTypes.Files;
                             break;
                         }
-
-                    case "test":
+                    case "--RECURSIVE":
                         {
-                            Console.reprint();
+                            recursive = true;
                             break;
                         }
-
-                    case "mkdir":
+                    case "--FILTER":
                         {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: mkdir <name>");
-                                break;
-                            }
-                            string name = args[1];
-                            string target = fs.NormalizePath(currentPath, name);
-                            fs.MakeDir(target);
+                            filterString = args[i + 1];
+                            i++;
                             break;
                         }
-                    case "cd":
-                    {
-                        if (args.Length < 2)
+                    case "--HELP":
                         {
-                            Console.WriteLine("Usage: cd <path>");
+                            Console.WriteLine("By default, LS lists the content of the current working directory. You can configure its behaviour by using the following optional flags:");
+                            Console.WriteLine("--PATH <path>: Show the content of the specified path");
+                            Console.WriteLine("--FILTER <string>: Only show elements whose name contains the filter string");
+                            Console.WriteLine("--DIRS: Show directories only");
+                            Console.WriteLine("--FILES: Show files only");
+                            Console.WriteLine("--RECURSIVE: Resolve directories recursively");
                             break;
                         }
-                            
-                        string requested = args[1];
-
-                        // Root
-                        if (requested == @"\" || requested == "/")
-                        {
-                            currentPath = @"0:\";
-                            Console.WriteLine("Dir changed to " + currentPath);
-                            break;
-                        }
-
-                        // up one
-                        if (requested == "..")
-                        {
-                            // normalize currentPath to have no trailing slash (except root)
-                            string cp = currentPath;
-                            if (cp.EndsWith("\\") && cp.Length > 3) cp = cp.TrimEnd('\\');
-                            int last = cp.LastIndexOf('\\');
-                            if (last > 2)
-                            {
-                                currentPath = cp.Substring(0, last) + "\\";
-                            }
-                            else
-                            {
-                                currentPath = @"0:\";
-                            }
-                            Console.WriteLine("Dir changed to " + currentPath);
-                            break;
-                        }
-
-                        // Normaler Wechsel (relativ oder absolut)
-                        string newPath = fs.NormalizePath(currentPath, requested);
-
-                        // Ensure trailing slash for directory representation
-                        if (!newPath.EndsWith("\\") && fs.DirectoryExists(newPath))
-                            newPath = newPath + "\\";
-
-                        if (fs.DirectoryExists(newPath))
-                        {
-                            currentPath = newPath;
-                            Console.WriteLine("Dir changed to " + currentPath);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Directory not found: " + newPath);
-                        }
-                        break;
-                    }
-                case "edit":
-                    {
-                        string path = "";
-
-                        if (args.Length > 1)
-                        {
-                            path = args[1];
-                        }
-                        else
-                        {
-                            path = currentPath;
-                        }
-
-                        Editor editor = new Editor(path);
-
-                        try
-                        {
-
-                            editor.ReadFile();
-
-                            editor.editmode();
-
-                        }
-                        catch (Sys.Exception ex){
-                            Console.WriteLine(ex.Message);
-                        }
-                        Console.reprint();
-                        break;
-                    }
-                            
-
-                    case "copy":
-                        {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: copy <file>");
-                                break;
-                            }
-
-                            string source = fs.NormalizePath(currentPath, args[1]);
-
-                            if (!source.Contains(@":\"))
-                                source = fs.NormalizePath(currentPath, args[1]);
-
-                            fs.CopyBufferSet(source, false);
-                            break;
-                        }
-
-                    case "cut":
-                        {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: cut <file>");
-                                break;
-                            }
-
-                            string source = fs.NormalizePath(currentPath, args[1]);
-                            fs.CopyBufferSet(source, true);
-                            break;
-                        }
-
-                    case "paste":
-                        {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                            fs.PasteIntoDir(currentPath);
-                            break;
-                        }
-
-                    case "move":
-                        {
-                            if (!um.HasPermission("write"))
-                            {
-                                Console.WriteLine("Zugriff verweigert.");
-                                return;
-                            }
-                            if (args.Length < 3)
-                            {
-                                Console.WriteLine("Usage: move <file> <newname or path>");
-                                break;
-                            }
-
-                            string src = fs.NormalizePath(currentPath, args[1]);
-                            string dest = fs.NormalizePath(currentPath, args[2]);
-                            fs.MoveFile(src, dest);
-                            break;
-                        }
-
-                    case "login":
-                        {
-                            if (args.Length < 3)
-                            {
-                                Console.WriteLine("Usage: login <username> <password>");
-                                break;
-                            }
-                            if (um.Login(args[1], args[2]))
-                            {
-                                Console.WriteLine("Logged in as " + args[1]);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Login failed");
-                            }
-                            break;
-                        }
-
-                    case "logout":
-                        {
-                            um.Logout();
-                            Console.WriteLine("Logged out");
-                            break;
-                        }
-
-                    case "adduser":
-                        {
-                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
-                            {
-                                Console.WriteLine("Access denied: Admin required");
-                                break;
-                            }
-                            if (args.Length < 4)
-                            {
-                                Console.WriteLine("Usage: adduser <username> <password> <role>");
-                                break;
-                            }
-                            string name = args[1], pass = args[2], role = args[3];
-                            if (um.CreateUser(name, pass, role))
-                            {
-                                Console.WriteLine("User created: " + name);
-                            }
-                            else
-                            {
-                                Console.WriteLine("User already exists");
-                            }
-                            break;
-                        }
-
-                    case "deluser":
-                        {
-                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
-                            {
-                                Console.WriteLine("Access denied: Admin required");
-                                break;
-                            }
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: deluser <username>");
-                                break;
-                            }
-                            if (um.DeleteUser(args[1]))
-                            {
-                                Console.WriteLine("User deleted: " + args[1]);
-                            }
-                            else
-                            {
-                                Console.WriteLine("User not found: " + args[1]);
-                            }
-                            break;
-                        }
-
-                    case "listusers":
-                        {
-                            if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
-                            {
-                                Console.WriteLine("Access denied: Admin required");
-                                break;
-                            }
-                            foreach (var u in um.ListUsers())
-                            {
-                                Console.WriteLine($"- {u.Username} (role: {u.Role})");
-                            }
-                            break;
-                        }
-
-                    case "whoami":
-                        {
-                            if (um.CurrentUser == null)
-                            {
-                                Console.WriteLine("No user logged in.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Current user: " + um.CurrentUser.Username + " (role: " + um.CurrentUser.Role + ")");
-                            }
-                            break;
-                        }
-
-
-
                     default:
                         {
-                            Console.WriteLine(input);
-                            break;
+                            Console.WriteLine("LS: Unknown flag " + args[i] + "\nUse LS -HELP for help.");
+                            return;
                         }
                 }
             }
-            catch (Exception e)
+            try
             {
-                // Falls doch mal etwas unvorhergesehenes passiert, nicht abstürzen lassen
-                Console.WriteLine("Command error: " + e.Message);
+                fs.listDir(path, 0, recursive, elementTypes, filterString);
             }
+            catch (Sys.Exception e)
+            {
+                Console.WriteLine("LS: " + e.ToString());
+            }
+        }
+
+        private static void rm(string[] args)
+        {
+            fs.remove(@"0:\" + args[1]);
+        }
+
+        private static void shutdown()
+        {
+            CosmosSys.Power.Shutdown();
+        }
+
+        private static void nuke()
+        {
+            Console.WriteLine("Nahhh don't do it, I wanna and I WILL get the Nobel Peace Prize!");
         }
     }
 }
