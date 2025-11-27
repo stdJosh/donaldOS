@@ -152,61 +152,61 @@ namespace DonaldOS
                             fs.MakeDir(target);
                             break;
                         }
-                        case "cd":
+                    case "cd":
+                    {
+                        if (args.Length < 2)
                         {
-                            if (args.Length < 2)
-                            {
-                                Console.WriteLine("Usage: cd <path>");
-                                break;
-                            }
+                            Console.WriteLine("Usage: cd <path>");
+                            break;
+                        }
                             
-                            string requested = args[1];
+                        string requested = args[1];
 
-                            // Root
-                            if (requested == @"\" || requested == "/")
+                        // Root
+                        if (requested == @"\" || requested == "/")
+                        {
+                            currentPath = @"0:\";
+                            Console.WriteLine("Dir changed to " + currentPath);
+                            break;
+                        }
+
+                        // up one
+                        if (requested == "..")
+                        {
+                            // normalize currentPath to have no trailing slash (except root)
+                            string cp = currentPath;
+                            if (cp.EndsWith("\\") && cp.Length > 3) cp = cp.TrimEnd('\\');
+                            int last = cp.LastIndexOf('\\');
+                            if (last > 2)
                             {
-                                currentPath = @"0:\";
-                                Console.WriteLine("Dir changed to " + currentPath);
-                                break;
-                            }
-
-                            // up one
-                            if (requested == "..")
-                            {
-                                // normalize currentPath to have no trailing slash (except root)
-                                string cp = currentPath;
-                                if (cp.EndsWith("\\") && cp.Length > 3) cp = cp.TrimEnd('\\');
-                                int last = cp.LastIndexOf('\\');
-                                if (last > 2)
-                                {
-                                    currentPath = cp.Substring(0, last) + "\\";
-                                }
-                                else
-                                {
-                                    currentPath = @"0:\";
-                                }
-                                Console.WriteLine("Dir changed to " + currentPath);
-                                break;
-                            }
-
-                            // Normaler Wechsel (relativ oder absolut)
-                            string newPath = fs.NormalizePath(currentPath, requested);
-
-                            // Ensure trailing slash for directory representation
-                            if (!newPath.EndsWith("\\") && fs.DirectoryExists(newPath))
-                                newPath = newPath + "\\";
-
-                            if (fs.DirectoryExists(newPath))
-                            {
-                                currentPath = newPath;
-                                Console.WriteLine("Dir changed to " + currentPath);
+                                currentPath = cp.Substring(0, last) + "\\";
                             }
                             else
                             {
-                                Console.WriteLine("Directory not found: " + newPath);
+                                currentPath = @"0:\";
                             }
+                            Console.WriteLine("Dir changed to " + currentPath);
                             break;
                         }
+
+                        // Normaler Wechsel (relativ oder absolut)
+                        string newPath = fs.NormalizePath(currentPath, requested);
+
+                        // Ensure trailing slash for directory representation
+                        if (!newPath.EndsWith("\\") && fs.DirectoryExists(newPath))
+                            newPath = newPath + "\\";
+
+                        if (fs.DirectoryExists(newPath))
+                        {
+                            currentPath = newPath;
+                            Console.WriteLine("Dir changed to " + currentPath);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Directory not found: " + newPath);
+                        }
+                        break;
+                    }
                 case "edit":
                     {
                         string path = "";
