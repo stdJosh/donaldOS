@@ -35,9 +35,9 @@ namespace DonaldOS
         {
             foreach (string line in data.Split('\n'))
             {
-                for (int i = 0;  line.Length < 80; i += 80)
+                for (int i = 0; i <= line.Length; i += 80)
                 {
-                    consoleLines[0] += line.Substring(i, i + 79);
+                    consoleLines[0] += line.Substring(i, Sys.Math.Min(i + 79, line.Length - i));
                     consoleLines.Insert(0, "");
                 }
             }
@@ -55,8 +55,11 @@ namespace DonaldOS
         {
             foreach (string line in data.Split('\n'))
             {
-                consoleLines[0] += line;
-                consoleLines.Insert(0, "");
+                for (int i = 0; i <= line.Length; i += 80)
+                {
+                    consoleLines[0] += line.Substring(i, Sys.Math.Min(i + 79, line.Length - i));
+                    consoleLines.Insert(0, "");
+                }
             }
             Sys.Console.WriteLine(data);
         }
@@ -72,9 +75,9 @@ namespace DonaldOS
         {
             string input = Sys.Console.ReadLine();
 
-            for (int i = 0; input.Length < 80; i += 80)
+            for (int i = 0; i < input.Length; i += 80)
             {
-                consoleLines[0] += input.Substring(i, i + 79);
+                consoleLines[0] += input.Substring(i, Sys.Math.Min(i + 79, input.Length - i));
                 consoleLines.Insert(0, "");
             }
             previousCommands.Insert(0, input);

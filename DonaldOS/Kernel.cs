@@ -37,7 +37,6 @@ namespace DonaldOS
             CosmosSys.MouseManager.ScreenHeight = 2000;
             CosmosSys.MouseManager.Y = 1000;
 
-            
             Console.printBootScreen();
         }
 
@@ -48,17 +47,17 @@ namespace DonaldOS
             {
                 Console.WriteLine("Bitte einloggen, bevor Sie das System nutzen.");
                 Console.Write("Username: ");
-                string u = Console.ReadLine();
-
+                string u = Console.ReadLine(); // TODO: dafür ne eigene Methode in Console schreiben, wo das Passwort unkenntlich gemacht wird
+            
                 Console.Write("Passwort: ");
                 string p = Console.ReadLine();
-
+            
                 if (!um.Login(u, p))
                 {
                     Console.WriteLine("Login fehlgeschlagen.");
                     return;
                 }
-
+            
                 Console.WriteLine("Erfolgreich eingeloggt.");
             }
 
@@ -69,7 +68,16 @@ namespace DonaldOS
                 Console.checkScrolling();
                 return;
             }
-            Console.getAndHandleKey();
+
+            try
+            {
+                Console.getAndHandleKey();
+            }
+            catch (Sys.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Sys.Threading.Thread.Sleep(10000);
+            }
         }
     }
 }
