@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using CosmosSys = Cosmos.System;
+using System.IO;
 
 namespace DonaldOS
 {
@@ -418,6 +419,13 @@ namespace DonaldOS
             {
                 path = currentPath;
             }
+
+            if (!File.Exists(path))
+            {
+                Console.WriteLine("Path does not exist: " + path);
+                return;
+            }
+
 
             Editor editor = new Editor(path);
 

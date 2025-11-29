@@ -8,33 +8,6 @@ using System.Threading.Tasks;
 
 namespace DonaldOS
 {
-    // todo:
-    // markieren und copy paste ? --
-    // scrollen können (pfeiltasten)  -/
-    // zurück                         //
-    // wieder vor                     //
-    // schreiben / editiren           -/
-    // beim nach oben drücken länge beachten -/
-    // beim del in einer leeren zeile soll sie gelöscht werden bzw wenn wenn an pos 0 soll der "reststring" nach oben geschoben werden -/
-    // view machen (falls zu viele zeilen) -/
-    // speichern lol -/ 
-    //offset mitzählen (oben, unten, links (bei 0), rechts bei length, delete (bei x%80 = 0 und y-offset = 0) und enter -/
-    // error handling ? statt abstürzen evt lieber eine meldung ausgeben also immer ein try catch haben in der while(true) und das run beenden ? evt mit speichern
-
-
-    //aktuelles problem / noch zu machen: 25. zeile nicht angezeigt (also der inhalt) aber editierbar -/
-    // mehrzeilige string werden immer als ganzes angezeigt  -/
-    // programm schließen (automatisch speichern verfügbar machen) -/
-    // error handling ? automatisch gespeichert (real file zeug, cursor position, filesave, beenden, bei strings(wegen index) evt bei (sys. out of range)commandexecutionshelp, ex.tostring statt message)
-    //2 letzten zeilen für comands (und evt daten wie x, y und automatisch speichern) keine daten -/
-    //vor zurück mit strg z und strg y und einer liste an changes  (alle lines speichern oder cursorposition und key) 
-    // wenn ich dann zurück im editor bin sind alle änderungen mit in der anzeige ? -/
-
-    // nach unten scrollen -> prüfen ob oben noch was kommt -/
-    // beim delete in der letzten zeile soll eins hoch gescrollt werden oder?
-
-    //user  management (read level, write level pro funktion prüfen und in string [0] speichern ? und nach auslesen abtrennen und extra speichern
-
     internal class Editor
     {
         List<string> rows = new List<string>();
@@ -50,8 +23,6 @@ namespace DonaldOS
         //ab dem wie vielten 80. ? -> 0=0,1=80,2=160
         int topbegin = 0;
 
-        //wie viele zeilen unten wegschneiten
-        int bottomend = 0;
         int n = 0;
 
         //kostruktor
@@ -81,7 +52,7 @@ namespace DonaldOS
             int i = 0;
             int max_begrenzer = 0;
 
-            //0-23 (also 24) -> 0-21 (22) (wegen 2 status zeilen) -> 0-22(23) (wegen der einen leeren zeile unten die jetzt weg ist)
+            //0-22(23)  (2 sind Status-Zeilen)
             for (n = 0 + offset; n < rows.Count && n < offset + 23 - max_begrenzer; n++)
             {
 
@@ -157,7 +128,7 @@ namespace DonaldOS
             }
 
             System.Console.WriteLine("-------------------------------------------------------------------------------");
-            System.Console.Write("Comands: Ctrl+S = Save || Ctrl+X = End       Saved:");
+            System.Console.Write("Commands: Ctrl+S = Save || Ctrl+X = End       Saved:");
             //System.Console.Write("cursorX:" + cursorX + " cursorY:"+cursorY + " offset:"+offset+ " extra:"+extra);
             if (saved)
             {
@@ -231,7 +202,6 @@ namespace DonaldOS
 
             while (true)
             {
-                //todo: nicht immer alles neu zeichnen
                 System.Console.Clear();
                 PrintFile();  // Gibt alle logischen Zeilen aus
 
@@ -271,7 +241,6 @@ namespace DonaldOS
 
                 switch (key.Key)
                 {
-                    //bis hierhin gekommen
                     case ConsoleKey.LeftArrow:
                         if (cursorX > 0)
                         {
@@ -335,14 +304,6 @@ namespace DonaldOS
                                     topbegin = 0;
                                     offset++;
                                 }
-                                //if (rows[n].Length/width > bottomend)
-                                //{
-                                //    bottomend++;
-                                //}
-                                //else
-                                //{
-                                //    bottomend = 0;
-                                //}
                             }
                             cursorY++;
                             cursorX = 0;
@@ -372,8 +333,6 @@ namespace DonaldOS
                             {
                                 topbegin--;
                             }
-
-                            //multilineoffset
                         }
                         else
                         {
@@ -456,7 +415,6 @@ namespace DonaldOS
                             else
                             {
                                 // es gibt noch eine -> nächste Zeile
-                                //merken -1
                                 if (cursorY < rows.Count - 1)
                                 {
 
@@ -484,7 +442,6 @@ namespace DonaldOS
                         else
                         {
                             // es gibt noch eine -> nächste Zeile
-                            //merken -1
                             if (cursorY < rows.Count - 1)
                             {
 
