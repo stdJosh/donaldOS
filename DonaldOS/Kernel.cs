@@ -15,21 +15,17 @@ namespace DonaldOS
 
         CosmosSys.FileSystem.CosmosVFS vfs = new CosmosSys.FileSystem.CosmosVFS();
 
-
         protected override void BeforeRun()
         {
             
             CosmosSys.FileSystem.VFS.VFSManager.RegisterVFS(vfs);
 
-
             var um = SharedUserManager;
-
 
             if (!um.ListUsers().Any())
             {
                 um.InitializeAdminInteractive();
             }
-
 
             CosmosSys.KeyboardManager.SetKeyLayout(new DE_Standard());
 
@@ -50,7 +46,7 @@ namespace DonaldOS
                 string u = Console.ReadLine(); // TODO: dafür ne eigene Methode in Console schreiben, wo das Passwort unkenntlich gemacht wird
             
                 Console.Write("Passwort: ");
-                string p = Console.ReadLine();
+                string p = Console.getPasswordFromUser();
             
                 if (!um.Login(u, p))
                 {
@@ -59,6 +55,8 @@ namespace DonaldOS
                 }
             
                 Console.WriteLine("Erfolgreich eingeloggt.");
+
+                Console.printPrompt();
             }
 
 

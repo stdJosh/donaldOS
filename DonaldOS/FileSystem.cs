@@ -171,7 +171,7 @@ namespace DonaldOS
             }
             catch (Exception e)
             {
-                Console.WriteLine("DeleteDirectoryRecursive error: " + e.Message);
+                Console.WriteLine("DeleteDirectoryRecursive error: " + e.ToString());
             }
         }
 
@@ -253,7 +253,7 @@ namespace DonaldOS
             }
             catch (Exception e)
             {
-                Console.WriteLine("copy error: " + e.Message);
+                Console.WriteLine("copy error: " + e.ToString());
             }
         }
 

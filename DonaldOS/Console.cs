@@ -24,6 +24,9 @@ namespace DonaldOS
     private static int scrollThreshold = 100;
     private static int currentScrollOffset = 0;
 
+    private static string prompt = "";
+    private static int promptLength;
+
         static Console()
         {
             consoleLines.Add("");
@@ -84,6 +87,58 @@ namespace DonaldOS
             return input;
         }
 
+        public static void printPrompt()
+        {
+            prompt = Kernel.SharedUserManager.CurrentUser.Username + "!" + CommandExecutionHelper.currentPath + "!$$$ ";
+            Write(prompt);
+            promptLength = prompt.Length;
+        }
+
+        public static string getPasswordFromUser()
+        {
+            string password = "";
+
+            while (true)
+            {
+                if (Sys.Console.KeyAvailable)
+                {
+                    CosmosSys.KeyEvent key = CosmosSys.KeyboardManager.ReadKey();
+                    switch (key.Key.ToConsoleKey())
+                    {
+                        case Sys.ConsoleKey.Enter:
+                            {
+                                WriteLine("");
+                                return password;
+                            }
+                        case Sys.ConsoleKey.Backspace:
+                        case Sys.ConsoleKey.DownArrow:
+                        case Sys.ConsoleKey.LeftArrow:
+                        case Sys.ConsoleKey.RightArrow:
+                        case Sys.ConsoleKey.UpArrow:
+                            {
+                                break;
+                            }
+                        default:
+                            {
+                                char keyChar = key.KeyChar;
+                                if (!char.IsAscii(keyChar))
+                                {
+                                    continue;
+                                }
+
+                                consoleLines[0] += '*';
+                                password += keyChar;
+                                    
+                                Sys.Console.Write('*');
+                                break;
+                            }
+
+                    }
+                    
+                }
+            }
+        }
+
         public static void getAndHandleKey()
         {
             CosmosSys.KeyEvent key = CosmosSys.KeyboardManager.ReadKey();
@@ -94,10 +149,10 @@ namespace DonaldOS
                         currentCommandIndex = -1;
                         cursorPosition = 0;
                         WriteLine("");
-                        if (consoleLines[1] != null && consoleLines[1] != "")
+                        if (consoleLines[1] != null && consoleLines[1].Substring(promptLength) != "")
                         {
-                            previousCommands.Insert(0, consoleLines[1]);
-                            CommandExecutionHelper.executeCommand(consoleLines[1]);
+                            previousCommands.Insert(0, consoleLines[1].Substring(promptLength));
+                            CommandExecutionHelper.executeCommand(consoleLines[1].Substring(promptLength));
                         }
                         else
                         {
@@ -107,7 +162,7 @@ namespace DonaldOS
                     }
                 case Sys.ConsoleKey.Backspace:
                     {
-                        if (consoleLines[0].Length == 0)
+                        if (consoleLines[0].Length <= promptLength)
                         {
                             return;
                         }
@@ -142,7 +197,7 @@ namespace DonaldOS
                     }
                 case Sys.ConsoleKey.LeftArrow:
                     {
-                        if (cursorPosition >= consoleLines[0].Length)
+                        if (cursorPosition >= consoleLines[0].Length - promptLength)
                         {
                             return;
                         }
@@ -153,6 +208,10 @@ namespace DonaldOS
                 default:
                     {
                         char keyChar = key.KeyChar;
+                        if (!char.IsAscii(keyChar))
+                        {
+                            return;
+                        }
                         if (char.IsLower(keyChar))
                         {
                             keyChar = char.ToUpperInvariant(keyChar);
@@ -228,7 +287,7 @@ namespace DonaldOS
                 return;
             }
             currentCommandIndex++;
-            consoleLines[0] = previousCommands[currentCommandIndex];
+            consoleLines[0] = prompt + previousCommands[currentCommandIndex];
             reprint();
         }
 
@@ -248,7 +307,7 @@ namespace DonaldOS
             }
 
             currentCommandIndex--;
-            consoleLines[0] = previousCommands[currentCommandIndex];
+            consoleLines[0] = prompt + previousCommands[currentCommandIndex];
             reprint();
         }
 

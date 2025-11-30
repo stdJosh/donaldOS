@@ -14,7 +14,7 @@ namespace DonaldOS
 
         private static UserManager um = Kernel.SharedUserManager;
 
-        private static string currentPath = @"0:\";
+        public static string currentPath = @"0:\";
 
         private static Dictionary<string, (Sys.Action<string[]>, string, string)> commands = new Dictionary<string, (Sys.Action<string[]> action, string possibleArgs, string helpText)>
         {
@@ -22,13 +22,13 @@ namespace DonaldOS
             { "TOUCH", (args => touch(args), "<filename>", "Creates a new file in the current working directory respectively in the specified absolute path and tries to get it through the congress - well, at least the latter is what it SHOULD do, but the developers are too dumb...") },
             { "LS", (args => ls(args), "<[flags]>", "Lists all decrees ... ehhh files. Use LS --HELP for more details.") },
             { "RM", (args => rm(args), "<filename | directoryname>", "FIRES the element instantly --- :D") },
-            { "MKDIR", (args => mkdir(args), "", "") }, // TODO
-            { "CD", (args => cd(args), "", "") },
-            { "COPY", (args => copy(args), "", "") },
-            { "CUT", (args => cut(args), "", "") },
-            { "PASTE", ((args => paste(), "", "")) },
-            { "MOVE", (args => move(args), "", "") },
-            { "LOGIN", (args => login(args), "", "") },
+            { "MKDIR", (args => mkdir(args), "<directoryname>", "Creates a new folder with some Epstein papers inside.") },
+            { "CD", (args => cd(args), "<target directory>", "Uses my private jet to fly to your desired destination working directory. Use CD .. to go up and CD \\ to go to the root.") },
+            { "COPY", (args => copy(args), "<filename>", "Copies the file to the clipboard so you can then PASTE it easily somewhere else.") },
+            { "CUT", (args => cut(args), "<filename>", "Doges ehhh cuts the desired file to the clipboard so you can then PASTE it easily somewhere else.") },
+            { "PASTE", ((args => paste(), "", "PASTE the clipboard into the current working directory. NO, THIS APPROACH IS NOT UNNECESSARILY COMPLICATED AT ALL!")) },
+            { "MOVE", (args => move(args), "<source>, <destination>", "I like to MOVE IT MOVE IT...") },
+            { "LOGIN", (args => login(args), "<username>, <password>", "Logs you in as this user, but only if the password is correct.") },
             { "LOGOUT", (args => logout(), "", "") },
             { "ADDUSER", (args => adduser(args), "", "") },
             { "DELUSER", (args => deluser(args), "", "") },
@@ -47,6 +47,7 @@ namespace DonaldOS
             if (!commands.ContainsKey(args[0]))
             {
                 Console.WriteLine("If you've read anywhere that \"" + args[0] + "\" was a valid command, these where FAKE NEWS!!! Use HELP to get rid of these silly, silly ideas.\n");
+                Console.printPrompt();
                 return;
             }
 
@@ -61,6 +62,7 @@ namespace DonaldOS
             }
 
             Console.WriteLine("");
+            Console.printPrompt();
         }
 
         private static void help()
