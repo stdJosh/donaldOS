@@ -160,7 +160,7 @@ namespace DonaldOS
         {
             System.Console.Clear();
 
-            System.Console.WriteLine("versuche speichern");
+            System.Console.WriteLine("SAVING...");
 
 
             try
@@ -173,11 +173,11 @@ namespace DonaldOS
                         sw.WriteLine(line);
                     }
                 }
-                System.Console.WriteLine("Datei gespeichert!");
+                System.Console.WriteLine("Saved and SIGNED!!!");
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("Fehler beim Speichern: " + ex.Message);
+                System.Console.WriteLine("ERROR: " + ex.Message);
             }
         }
 
@@ -189,17 +189,17 @@ namespace DonaldOS
 
             while (true)
             {
-                System.Console.WriteLine("Moechtest du das Programm vorher speichern und dann erst beenden? Ja/Nein");
+                System.Console.WriteLine("You wanna save before closing? (yes/no)");
                 antwort = System.Console.ReadLine()?.Trim().ToLower();
 
-                if (antwort == "ja" || antwort == "nein")
+                if (antwort == "yes" || antwort == "no")
                     break; // gültige Eingabe → Schleife verlassen
 
-                System.Console.WriteLine("Bitte gib 'Ja' oder 'Nein' ein!");
+                System.Console.WriteLine("AM I SPEAKING SPANISH OR WHAT'S YOUR PROBLEM??? YES OR NO? YES OR NO???");
                 Thread.Sleep(1000);
             }
 
-            if (antwort == "ja")
+            if (antwort == "yes")
             {
                 return true;
             }
