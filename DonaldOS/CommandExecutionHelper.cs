@@ -15,7 +15,7 @@ namespace DonaldOS
 
         private static UserManager um = Kernel.SharedUserManager;
 
-        private static string currentPath = @"0:\";
+        public static string currentPath = @"0:\";
 
         private static Dictionary<string, (Sys.Action<string[]>, string, string)> commands = new Dictionary<string, (Sys.Action<string[]> action, string possibleArgs, string helpText)>
         {
@@ -23,21 +23,21 @@ namespace DonaldOS
             { "TOUCH", (args => touch(args), "<filename>", "Creates a new file in the current working directory respectively in the specified absolute path and tries to get it through the congress - well, at least the latter is what it SHOULD do, but the developers are too dumb...") },
             { "LS", (args => ls(args), "<[flags]>", "Lists all decrees ... ehhh files. Use LS --HELP for more details.") },
             { "RM", (args => rm(args), "<filename | directoryname>", "FIRES the element instantly --- :D") },
-            { "MKDIR", (args => mkdir(args), "", "") }, // TODO
-            { "CD", (args => cd(args), "", "") },
-            { "COPY", (args => copy(args), "", "") },
-            { "CUT", (args => cut(args), "", "") },
-            { "PASTE", ((args => paste(), "", "")) },
-            { "MOVE", (args => move(args), "", "") },
-            { "LOGIN", (args => login(args), "", "") },
-            { "LOGOUT", (args => logout(), "", "") },
-            { "ADDUSER", (args => adduser(args), "", "") },
-            { "DELUSER", (args => deluser(args), "", "") },
-            { "LISTUSERS", (args => listusers(), "", "") },
-            { "WHOAMI", (args => whoami(), "", "") },
-            { "EDIT", (args => edit(args), "", "") },
+            { "MKDIR", (args => mkdir(args), "<directoryname>", "Creates a new folder with some Epstein papers inside.") },
+            { "CD", (args => cd(args), "<target directory>", "Uses my private jet to fly to your desired destination working directory. Use CD .. to go up and CD \\ to go to the root.") },
+            { "COPY", (args => copy(args), "<filename>", "Copies the file to the clipboard so you can then PASTE it easily somewhere else.") },
+            { "CUT", (args => cut(args), "<filename>", "Doges ehhh cuts the desired file to the clipboard so you can then PASTE it easily somewhere else.") },
+            { "PASTE", ((args => paste(), "", "PASTE the clipboard into the current working directory. NO, THIS APPROACH IS NOT UNNECESSARILY COMPLICATED AT ALL!")) },
+            { "MOVE", (args => move(args), "<source>, <destination>", "I like to MOVE IT MOVE IT...") },
+            { "LOGIN", (args => login(args), "<username>, <password>", "Logs you in as this user, but only if the password is correct. Otherwise you will be sent to my friend Kim.") },
+            { "LOGOUT", (args => logout(), "", "If you have worked hard enough for your country, you may leave.") },
+            { "ADDUSER", (args => adduser(args), "<username> <password> <role>", "Adds a user with the given properties, but only if he is Republican.") },
+            { "DELUSER", (args => deluser(args), "<username>", "FIRES the given user.") },
+            { "LISTUSERS", (args => listusers(), "", "It's self-explanatory - I've better things to do than explain that to you...") },
+            { "WHOAMI", (args => whoami(), "", "I  A M  D O N A L D  J.  T R U M P, AND IT DOES NOT MATTER WHO YOU ARE!!!") },
+            { "EDIT", (args => edit(args), "<absolutePathToAFile>", "Edit the given file and SIGN IT at the end with an edding :D") },
             { "SHUTDOWN", (args => shutdown(), "", "No no no this has nothing to do with a government shutdown, it's just about this system.") },
-            { "NUKE", (args => nuke(), "<destination>", "Starts a nuclear war with the given country. Be careful!") }
+            { "NUKE", (args => nuke(), "<destination>", "Starts a nuclear war with the given country, using our BIG, BEAUTIFUL nukes. Be careful!") }
         };
         public static void executeCommand(string input)
         {
@@ -48,6 +48,7 @@ namespace DonaldOS
             if (!commands.ContainsKey(args[0]))
             {
                 Console.WriteLine("If you've read anywhere that \"" + args[0] + "\" was a valid command, these where FAKE NEWS!!! Use HELP to get rid of these silly, silly ideas.\n");
+                Console.printPrompt();
                 return;
             }
 
@@ -62,6 +63,11 @@ namespace DonaldOS
             }
 
             Console.WriteLine("");
+
+            if (args[0] != "LOGOUT")
+            {
+                Console.printPrompt();
+            }
         }
 
         private static void help()
@@ -161,7 +167,7 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THAT!!!");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
             if (args.Length < 2)
@@ -179,13 +185,13 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("Zugriff verweigert.");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
 
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: mkdir <name>");
+                Console.WriteLine("Usage: MKDIR <name>");
                 return;
             }
             string name = args[1];
@@ -197,7 +203,7 @@ namespace DonaldOS
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: cd <path>");
+                Console.WriteLine("Usage: CD <path | \\>");
                 return;
             }
 
@@ -244,7 +250,7 @@ namespace DonaldOS
             }
             else
             {
-                Console.WriteLine("Directory not found: " + newPath);
+                Console.WriteLine("There is no directory like: " + newPath + ", you silly idiot");
             }
         }
 
@@ -252,12 +258,12 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("Zugriff verweigert.");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: copy <file>");
+                Console.WriteLine("Usage: COPY <file>");
                 return;
             }
 
@@ -273,12 +279,12 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("Zugriff verweigert.");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: cut <file>");
+                Console.WriteLine("Usage: CUT <file>");
                 return;
             }
 
@@ -290,7 +296,7 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("Zugriff verweigert.");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
             fs.PasteIntoDir(currentPath);
@@ -300,12 +306,12 @@ namespace DonaldOS
         {
             if (!um.HasPermission("write"))
             {
-                Console.WriteLine("Zugriff verweigert.");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!!");
                 return;
             }
             if (args.Length < 3)
             {
-                Console.WriteLine("Usage: move <file> <newname or path>");
+                Console.WriteLine("Usage: MOVE <file> <newname or path>");
                 return;
             }
 
@@ -318,7 +324,7 @@ namespace DonaldOS
         {
             if (args.Length < 3)
             {
-                Console.WriteLine("Usage: login <username> <password>");
+                Console.WriteLine("Usage: LOGIN <username> <password>");
                 return;
             }
             if (um.Login(args[1], args[2]))
@@ -327,26 +333,26 @@ namespace DonaldOS
             }
             else
             {
-                Console.WriteLine("Login failed");
+                Console.WriteLine("Login failed.");
             }
         }
 
         private static void logout()
         {
             um.Logout();
-            Console.WriteLine("Logged out");
+            Console.WriteLine("Logged out. You can go and play golf now.");
         }
 
         private static void adduser(string[] args)
         {
             if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
             {
-                Console.WriteLine("Access denied: Admin required");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!! YOU HAVE TO BE AN ADMIN!!!");
                 return;
             }
             if (args.Length < 4)
             {
-                Console.WriteLine("Usage: adduser <username> <password> <role>");
+                Console.WriteLine("Usage: ADDUSER <username> <password> <role>");
                 return;
             }
             string name = args[1], pass = args[2], role = args[3];
@@ -364,12 +370,12 @@ namespace DonaldOS
         {
             if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
             {
-                Console.WriteLine("Access denied: Admin required");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!! YOU HAVE TO BE AN ADMIN!!!");
                 return;
             }
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: deluser <username>");
+                Console.WriteLine("Usage: DELUSER <username>");
                 return;
             }
             if (um.DeleteUser(args[1]))
@@ -386,7 +392,7 @@ namespace DonaldOS
         {
             if (um.CurrentUser == null || um.CurrentUser.Role != "admin")
             {
-                Console.WriteLine("Access denied: Admin required");
+                Console.WriteLine("YOU ARE NOT ALLOWED TO DO THIS!!! YOU HAVE TO BE AN ADMIN!!!");
                 return;
             }
             foreach (var u in um.ListUsers())
@@ -399,7 +405,7 @@ namespace DonaldOS
         {
             if (um.CurrentUser == null)
             {
-                Console.WriteLine("No user logged in.");
+                Console.WriteLine("No user logged in. How did you even manage to accomplish this...");
             }
             else
             {
