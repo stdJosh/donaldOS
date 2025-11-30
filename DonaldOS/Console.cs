@@ -270,7 +270,7 @@ namespace DonaldOS
             {
                 if (i >= consoleLines.Count)
                 {
-                    //Sys.Console.WriteLine("");
+                    Sys.Console.WriteLine("");
                     continue;
                 }
                 Sys.Console.WriteLine(consoleLines[i]);
