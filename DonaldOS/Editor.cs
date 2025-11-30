@@ -20,21 +20,34 @@ namespace DonaldOS
         int offset = 0;
         bool saved = true;
 
+        string currentUserRole;
+        bool erlaubt = false;
+
         //ab dem wie vielten 80. ? -> 0=0,1=80,2=160
         int topbegin = 0;
 
         int n = 0;
 
         //kostruktor
-        public Editor(string filename)
+        public Editor(string filename, string role)
         {
             this.filename = filename;
+            this.currentUserRole = role;
+        }
 
+        public void erlaubtsetzten()
+        {
+            if (currentUserRole.Equals("admin", StringComparison.OrdinalIgnoreCase) || currentUserRole.Equals("write", StringComparison.OrdinalIgnoreCase))
+            {
+                erlaubt = true;
+            }
         }
 
         //initialisieren der rows
         public void ReadFile()
         {
+            erlaubtsetzten();
+
             System.Console.Clear();
             rows = new List<string>(File.ReadAllLines(filename));
 
@@ -469,7 +482,12 @@ namespace DonaldOS
 
                     case ConsoleKey.Backspace:
 
-                        saved = false;
+                        //schauen ob user bearbeiten darf
+                        if (!erlaubt)
+                        {
+                            break;
+                        }
+                            saved = false;
 
                         if (cursorX > 0)
                         {
@@ -507,6 +525,11 @@ namespace DonaldOS
 
                     case ConsoleKey.Enter:
 
+                        if (!erlaubt)
+                        {
+                            break;
+                        }
+
                         saved = false;
 
                         string rest = "";
@@ -540,6 +563,12 @@ namespace DonaldOS
                         break;
 
                     default:
+
+                        if (!erlaubt)
+                        {
+                            break;
+                        }
+
                         //zwischen 32 " " und 126 sind alle buchstaben zahlen und satzzeichen
                         if (key.KeyChar >= 32 && key.KeyChar <= 126)
                         {

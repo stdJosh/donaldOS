@@ -427,7 +427,7 @@ namespace DonaldOS
             }
 
 
-            Editor editor = new Editor(path);
+            Editor editor = new Editor(path,um.CurrentUser.Role);
 
             try
             {
