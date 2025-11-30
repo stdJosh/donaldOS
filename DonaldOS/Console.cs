@@ -330,7 +330,7 @@ namespace DonaldOS
         public static void printBootScreen()
         {
             Sys.Console.Write(DonaldHimself.ascii);
-            Sys.Threading.Thread.Sleep(500);
+            Sys.Threading.Thread.Sleep(2500);
             Sys.Console.Clear();
             WriteLine("\t\t^DISCLAIMER^");
             WriteLine(DonaldHimself.name);
