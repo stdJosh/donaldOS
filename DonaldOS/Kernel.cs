@@ -41,20 +41,20 @@ namespace DonaldOS
             var um = SharedUserManager;
             if (um.CurrentUser == null)
             {
-                Console.WriteLine("Bitte einloggen, bevor Sie das System nutzen.");
+                Console.WriteLine("Not even the FBI can tell me who you are. Login! NOW!");
                 Console.Write("Username: ");
-                string u = Console.ReadLine(); // TODO: dafür ne eigene Methode in Console schreiben, wo das Passwort unkenntlich gemacht wird
+                string u = Console.ReadLine();
             
-                Console.Write("Passwort: ");
+                Console.Write("Password: ");
                 string p = Console.getPasswordFromUser();
             
                 if (!um.Login(u, p))
                 {
-                    Console.WriteLine("Login fehlgeschlagen.");
+                    Console.WriteLine("ARE YOU TOO STUPID TO LOG IN??? I will give you one last chance...\n\n");
                     return;
                 }
             
-                Console.WriteLine("Erfolgreich eingeloggt.");
+                Console.WriteLine("You are logged in now. Consider linking your TRUTH SOCIAL account\n\n");
 
                 Console.printPrompt();
             }
@@ -74,7 +74,7 @@ namespace DonaldOS
             catch (Sys.Exception e)
             {
                 Console.WriteLine(e.ToString());
-                Sys.Threading.Thread.Sleep(10000);
+                Sys.Threading.Thread.Sleep(5000);
             }
         }
     }
