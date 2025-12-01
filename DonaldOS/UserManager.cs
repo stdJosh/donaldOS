@@ -28,7 +28,7 @@ namespace DonaldOS
 
     internal class UserManager
     {
-        private const string UserFile = @"0:\system\users.db";
+        private const string UserFile = @"0:\SYSTEM\USERS.CONFIG";
         private List<User> users = new List<User>();
 
         public User CurrentUser { get; private set; }
