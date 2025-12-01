@@ -90,7 +90,7 @@ namespace DonaldOS
             }
             catch (Exception e)
             {
-                Console.WriteLine("UserManager: Fehler beim Laden: " + e.Message);
+                Console.WriteLine("UserManager: Loading error: " + e.Message);
             }
         }
 
@@ -109,7 +109,7 @@ namespace DonaldOS
             }
             catch (Exception e)
             {
-                Console.WriteLine("UserManager: Fehler beim Speichern: " + e.Message);
+                Console.WriteLine("UserManager: Saving error: " + e.Message);
             }
         }
 
@@ -155,17 +155,17 @@ namespace DonaldOS
 
         public void InitializeAdminInteractive()
         {
-            Console.WriteLine("Keine Benutzer gefunden – Initialen Admin anlegen.");
-            Console.Write("Neuer Admin-Benutzername: ");
+            Console.WriteLine("There are no users set. ADD ONE! (Note: This will automatically create a Truth Social account for you)");
+            Console.Write("New admin username: ");
             string username = Console.ReadLine();
 
-            Console.Write("Passwort festlegen: ");
+            Console.Write("Give me a password: ");
             string password = Console.ReadLine();
 
             users.Add(new User(username, password, "admin"));
             SaveUsers();
 
-            Console.WriteLine("Initialer Admin wurde erstellt.");
+            Console.WriteLine("Perfect. Go on...");
         }
 
     }
